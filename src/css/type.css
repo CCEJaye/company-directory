@@ -1,0 +1,134 @@
+html, p, h1, h2, h3, h4, h5, h6 {
+    font-family: Roboto, Helvetica, Verdana, sans-serif;
+    color: var(--primary);
+}
+
+.tTitle {
+    font-size: 4.8em;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tHeading1 {
+    font-size: 2.8em;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tHeading2 {
+    font-size: 2.6em;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+
+.tHeading3 {
+    font-size: 2.0em;
+    font-weight: 300;
+    line-height: 1.2;
+    letter-spacing: 0.03em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tHeading4 {
+    font-size: 1.8em;
+    font-weight: 400;
+    line-height: 1.2;
+    letter-spacing: 0.04em;
+    text-transform: uppercase; 
+    color: var(--primary);
+}
+
+.tHeading5 {
+    font-size: 1.4em;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tHeading6 {
+    font-size: 1.2em;
+    font-weight: 500;
+    line-height: 1.2;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+
+.tBody, p, h1, h2, h3, h4, h5, h6 {
+    font-size: 1.2em;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tLabel {
+    font-size: 1.0em;
+    font-weight: 500;
+    line-height: 1.5;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--primary);
+}
+
+.tInput {
+    font-size: 1.4em;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: unset;
+    color: var(--primary);
+}
+
+.tNote {
+    font-size: 1.1em;
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: 0.03em;
+    text-transform: unset;
+    color: var(--primary4);
+}
+
+.tEmph {
+    font-size: 150%;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+}
+
+.tC {
+    text-align: center;
+    text-align-last: center;
+}
+
+.tL {
+    text-align: left;
+    text-align-last: left;
+}
+
+.tR {
+    text-align: right;
+    text-align-last: right;
+}
+
+sup, sub {
+    font-size: 70%;
+    line-height: 0.75;
+    vertical-align: super;
+}
+
+sub {
+    vertical-align: sub;
+}

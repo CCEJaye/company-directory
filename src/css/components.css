@@ -1,0 +1,341 @@
+.input {
+    color: var(--primary);
+    width: 100%;
+    border-bottom: 0.1rem solid var(--primary);
+}
+
+.divider {
+    height: 0.1rem;
+    width: 100%;
+    background: var(--secondary4);
+    opacity: 1;
+}
+
+.modal {
+    display: none;
+}
+  
+.modal.is-open {
+    display: block;
+}
+
+.fill {
+    height: 100%;
+    width: 100%;
+}
+
+
+
+
+
+.iconBtn, .valueBtn, .selectBtnRoot {
+    display: block;
+    position: relative;
+    height: 6.4rem;
+    width: 100%;
+    min-width: 6.4rem;
+    text-align: center;
+    transition-property: color;
+    transition-duration: var(--medium);
+    cursor: pointer;
+    color: var(--primary);
+}
+
+.selectBtn {
+    transition-property: color;
+    transition-duration: var(--medium);
+    cursor: pointer;
+    background: var(--secondary2);
+    scrollbar-width: thin;
+    opacity: 0;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    height: 100%;
+    max-height: unset;
+    color: var(--primary);
+    appearance: none;
+    /* tbody */
+    font-size: 1.2em;
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0.04em;
+    text-transform: unset;
+}
+
+    .iconBtn:focus, .valueBtn:focus, .selectBtnRoot:focus-within {
+        background: var(--focus-shadow);
+        transition-duration: var(--medium);
+    }
+
+    .selectBtnRoot:focus-within {
+        z-index: 120;
+    }
+
+    .selectBtn:focus {
+        bottom: 100%;
+        opacity: 1;
+        height: unset;
+        max-height: unset;
+    }
+
+    .selectBtn option {
+        background: var(--secondary4);
+        /* for random firefox bug */
+        pointer-events: none;
+        padding: 1rem 2rem;
+    }
+
+    .selectBtn:focus option {
+        pointer-events: auto;
+    }
+
+    .selectBtnRoot label, .selectBtnRoot span {
+        pointer-events: none;
+        position: absolute;
+        left: 2rem;
+        right: 2rem;
+        bottom: 50%;
+    }
+
+    .selectBtnRoot span:last-of-type {
+        top: 50%;
+        bottom: unset;
+    }
+
+    .iconBtn:not(:disabled):active, .valueBtn:not(:disabled):active, .selectBtnRoot:not(:disabled):active {
+        color: var(--active);
+        transition-duration: 0ms;
+    }
+
+    .iconBtn:disabled, .valueBtn:disabled, .selectBtnRoot:disabled {
+        color: var(--primary4);
+    }
+
+    .iconBtn.mini, .valueBtn.mini {
+        min-width: 4rem;
+    }
+
+    .iconBtn span, .valueBtn span, .selectBtnRoot span, .selectBtnRoot label {
+        display: block;
+        text-overflow: ellipsis;
+        word-wrap: normal;
+    }
+
+.iconBtn {
+
+}
+
+    .iconBtn span {
+        padding-top: 0.5rem;
+    }
+
+    .iconBtn svg {
+        position: relative;
+        height: 3.2rem;
+        width: 3.2rem;
+        fill: var(--primary);
+        transition-property: fill;
+        transition-duration: var(--medium);
+    }
+
+        .iconBtn.mini svg {
+            padding: 0.5rem;
+        }
+
+    .iconBtn:focus svg {
+        transition-duration: var(--medium);
+    }
+
+    .iconBtn:active svg {
+        fill: var(--active);
+        transition-duration: 0ms;
+    }
+
+.valueBtn {
+    padding-left: 2rem;
+    padding-right: 2rem;
+}
+
+.icon {
+    height: 4.8rem;
+    width: 4.8rem;
+    fill: var(--primary);
+}
+
+.icon.mini {
+    height: 1.2rem;
+    width: 1.2rem;
+}
+
+.loader {
+    height: 0.2rem;
+    width: 100%;
+    background: linear-gradient(90deg, #0000, #0000, var(--loader2), var(--loader), #0000, #0000);
+    background-size: 600% 100%;
+}
+
+.loader.run {
+    --loader: var(--neutral);
+    --loader2: var(--neutral2);
+    animation: loaderRun var(--very-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94) infinite;
+}
+
+.loader.finish {
+    --loader: var(--positive);
+    --loader2: var(--positive2);
+    animation: loaderFinish var(--very-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.loader.error {
+    --loader: var(--negative);
+    --loader2: var(--negative2);
+    animation: loaderError var(--very-slow) cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+@keyframes loaderRun {
+    0% { background-position: 100% 100%; }
+    100% { background-position: 0% 100%; }
+}
+
+@keyframes loaderFinish {
+    0% { background-position: 100% 100%; }
+    100% { background-position: 0% 100%; }
+}
+
+@keyframes loaderError {
+    0% { background-position: 100% 100%; }
+    100% { background-position: 0% 100%; }
+}
+
+
+
+
+
+
+
+.drop {
+    filter: drop-shadow(0 0 0.2rem var(--shadow));
+}
+
+.sticky {
+    position: sticky;
+        top: 0;
+    background: var(--secondary);
+    z-index: 100;
+}
+
+.grid {
+    width: 100%;
+    display: grid;
+        grid-auto-columns: 1fr;
+        grid-auto-rows: min-content;
+        justify-items: center;
+        align-items: center;
+}
+
+.gC { grid-auto-flow: column; }
+.gR { grid-auto-flow: row; }
+.g2C { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+.g3C { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.g4C { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.g6C { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.gCfmm { grid-template-columns: minmax(0, 1fr) min-content min-content; }
+.gCmf { grid-template-columns: min-content minmax(0, 1fr); }
+.gRmf { grid-template-rows: min-content minmax(0, 1fr); }
+.g2R { grid-template-rows: repeat(2, minmax(0, min-content)); }
+.g3R { grid-template-rows: repeat(3, minmax(0, min-content)); }
+.g4R { grid-template-rows: repeat(4, minmax(0, min-content)); }
+.gGapBig { gap: 2rem; }
+.gGap { gap: 0.5rem; }
+.gGapSmall { gap: 0.1rem; }
+.gCenter { justify-items: center; }
+.gcStart { justify-self: start; }
+.gcEnd { justify-self: end; }
+.gcTop { align-self: start; }
+.gcMiddle { align-self: center; }
+
+.gCenter { justify-items: center; }
+
+.p4 { padding: 4rem; }
+.p4L { padding-left: 4rem; }
+.p4R { padding-right: 4rem; }
+.p4LR { padding-left: 4rem; padding-right: 4rem; }
+.p4T { padding-top: 4rem; }
+.p4B { padding-bottom: 4rem; }
+.p4TB { padding-top: 4rem; padding-bottom: 4rem; }
+.p2 { padding: 2rem; }
+.p2L { padding-left: 2rem; }
+.p2R { padding-right: 2rem; }
+.p2LR { padding-left: 2rem; padding-right: 2rem; }
+.p2T { padding-top: 2rem; }
+.p2B { padding-bottom: 2rem; }
+.p2TB { padding-top: 2rem; padding-bottom: 2rem; }
+.p { padding: 1rem; }
+.pL { padding-left: 1rem; }
+.pR { padding-right: 1rem; }
+.pLR { padding-left: 1rem; padding-right: 1rem; }
+.pT { padding-top: 1rem; }
+.pB { padding-bottom: 1rem; }
+.pTB { padding-top: 1rem; padding-bottom: 1rem; }
+
+.accentPositive { color: var(--positive);}
+.accentNegative { color: var(--negative);}
+
+.iResult { 
+    max-width: 10rem;
+    min-width: 10rem;
+}
+
+.iLarge {
+    max-height: 10rem;
+    max-width: 10rem;
+}
+
+.iMedium {
+    max-height: 5rem;
+    max-width: 5rem;
+}
+
+.flipX {
+    transform: scaleX(-1);
+}
+
+.floatR { float: right; }
+.floatL { float: left; }
+
+.bTB {
+    border-top: 0.1rem solid var(--primary);
+    border-bottom: 0.1rem solid var(--primary);
+}
+
+.bB { border-bottom: 0.1rem solid var(--primary); }
+.bT { border-top: 0.1rem solid var(--primary); }
+
+.mLR {
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+.mR { margin-right: 1rem; }
+.m2R { margin-right: 1rem; }
+.m2L { margin-left: 1rem; }
+.m2LR {
+    margin-right: 2rem;
+    margin-left: 2rem;
+}
+.mT { margin-top: 1rem; }
+.m2B { margin-bottom: 2rem; }
+.m { margin: 1rem; }
+.m2 { margin: 2rem; }
+
+.centered {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    right: 0;
+    bottom: 50%;
+    text-align: center;
+}

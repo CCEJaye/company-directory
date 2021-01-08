@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+    <head>
+        <title>World Information Finder</title>
+        <meta charset="UTF-8">
+        <meta name="author" content="Charles Jaye">
+        <meta name="description" content="Map-based application providing global and country-specific information from a collection of API sources">
+        <meta name="keywords" content="API, map, world, global, information, statistics, reports, data, leaflet, interactive, weather, news, politics, climate, currency, exchange, wind, precipitation, rain, snow, sunrise, sunset, temperature, disasters, history, corona, COVID-19, virus, epidemic, borders, country, population, language, coordinates, region, time, timezone, units, area, air, wiki, wikipedia, wikimedia, wikidata, yahoo, terrain, clouds, app, coronatracker, relief web, arcgis, ambee, opencage, restcountries">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1">
+        <link rel="icon" href="favicon.png">
+        <link rel="preconnect" href="https://fonts.gstatic.com">
+        <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;500;700&display=swap">
+        <link rel="stylesheet" type="text/css" href="lib/mmenu-8.5.20/mmenu.min.css">
+        <link rel="stylesheet" type="text/css" href="lib/micromodal-0.4.6/micromodal.css">
+        <link rel="stylesheet" type="text/css" href="css/index.css">
+    </head>
+
+    <body id="body">
+
+        <div id="pageWrapper" class="fill">
+
+            <div id="page">
+                <div id="preloader"></div>
+
+                <header id="header drop">
+                    <img id="logo" src="favicon.png">
+                    <h1 id="title" class="tHeading3">Company Directory</h1>
+                    <div class="loader run"></div>
+                </header>
+
+                <main id="main">
+                    <section id="sectionTable" class="section grid gR gRmf" style="display: none;">
+                        <h2 id="tableHeading" class="tHeading1 sectionHeader">Table</h2>
+                        <ol id="tableList">
+                            <li class="tHeading6 listHeader">A</li>
+                        </ol>
+                    </section>
+                    <section id="sectionRow" class="section grid gR gRmf" style="display: none;">
+                        <h2 id="rowHeading" class="tHeading1 sectionHeader">Row</h2>
+                        <form id="rowForm">
+                            <div id="inpRowFirstNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowFirstName">First name</label>
+                                <input id="inpRowFirstName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
+                            </div>
+                            <div id="inpRowLastNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowLastName">Last name</label>
+                                <input id="inpRowLastName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
+                            </div>
+                            <div id="inpRowJobTitleRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowJobTitle">Job title</label>
+                                <input id="inpRowJobTitle" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
+                            </div>
+                            <div id="inpRowEmailRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowEmail">Email</label>
+                                <input id="inpRowEmail" class="input tInput" type="email" autocapitalize="off" autocomplete="empty">
+                            </div>
+                            <div id="selRowDepartmentRoot" class="selectBtnRoot tL p2 pTB">
+                                <label class="tLabel" for="selRowDepartment">Department</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selRowDepartment" class="selectBtn" tabindex="0">
+                                </select>
+                            </div>
+                            <div id="inpRowNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowName">Name</label>
+                                <input id="inpRowName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
+                            </div>
+                            <div id="selRowLocationRoot" class="selectBtnRoot tL p2 pTB">
+                                <label class="tLabel" for="selRowLocation">Location</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selRowLocation" class="selectBtn" tabindex="0">
+                                </select>
+                            </div>
+                        </form>
+                    </section>
+                </main>
+
+                <footer id="footer">
+                    <div id="actionsBasic" class="grid gC gFillMinC p2LR">
+                        <div class="grid gR">
+                            <div class="grid gC gCfmm">
+                                <input id="inpSearch" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                                <button id="btnClear" class="iconBtn mini" type="button" aria-label="Clear search" tabindex="0">
+                                    <svg role="img"><use xlink:href="img/icons.svg#cross"></use></svg>
+                                </button>
+                                <button id="btnSearch" class="iconBtn mini" type="button" aria-label="Submit search" tabindex="0">
+                                    <svg role="img"><use xlink:href="img/icons.svg#search"></use></svg>
+                                </button>
+                            </div>
+                            <div class="grid gC">
+                                <div class="selectBtnRoot tC">
+                                    <label class="tLabel" for="selCategory">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selCategory" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSort" class="valueBtn" type="button" data-on="Ascending" data-off="Descending" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Sort</span>
+                                    <span class="tBody"></span>
+                                </button>
+                                <div class="selectBtnRoot tC">
+                                    <label class="tLabel" for="selFilter">Filter</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilter" class="selectBtn" multiple tabindex="0">
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="grid gR">
+                            <button id="btnAdd" class="iconBtn" type="button" tabindex="0">
+                                <span class="tLabel">Add</span>
+                                <svg role="img"><use xlink:href="img/icons.svg#plus"></use></svg>
+                            </button>
+                            <button id="btnMenu" class="iconBtn" type="button" tabindex="0">
+                                <span class="tLabel">Menu</span>
+                                <svg role="img"><use xlink:href="img/icons.svg#list"></use></svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="actions" class="grid gC p2LR">
+                        <button id="btnBack" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Back</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#back"></use></svg>
+                        </button>
+                        <button id="btnEdit" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Edit</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#edit"></use></svg>
+                        </button>
+                        <button id="btnEditBatch" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Batch edit</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#edit"></use></svg>
+                        </button>
+                        <button id="btnSelectAll" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Select all</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#select"></use></svg>
+                        </button>
+                        <button id="btnDelete" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Delete</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#delete"></use></svg>
+                        </button>
+                        <button id="btnReset" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Revert</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#reset"></use></svg>
+                        </button>
+                        <button id="btnSave" class="iconBtn mini" type="button" tabindex="0">
+                            <span class="tLabel">Save</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#save"></use></svg>
+                        </button>
+                    </div>
+                </footer>
+            </div>
+
+            <div id="modal" class="modal micromodal-slide" aria-hidden="true">
+                <div class="modal__overlay" tabindex="-1">
+                    <div class="modal__container" role="dialog" aria-modal="true" aria-labelledby="modalHeader">
+                        <header class="p2 pB">
+                            <h2 id="modalHeader" class="tHeading3">Micromodal</h2>
+                        </header>
+                        <main id="modalContent" class="p2 pTB">
+                            <p class="tBody">First name cannot be empty.</p>
+                            <p class="tBody">Last name cannot be empty.</p>
+                        </main>
+                        <footer class="modal__footer">
+                            <button id="modalCloseBtn" class="valueBtn" type="button">
+                                <span class="tBody">Okay</span>
+                            </button>
+                        </footer>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <nav id="menu" class="drop" style="opacity: 0;">
+            <ul>
+                <li class="tHeading6 listHeading">Tables</li>
+                <li class="tHeading5 listItem" tabindex="0"><a id="btnPersonnel">Personnel</a></li>
+                <li class="tHeading5 listItem" tabindex="0"><a id="btnDepartment">Department</a></li>
+                <li class="tHeading5 listItem" tabindex="0"><a id="btnLocation">Location</a></li>
+                <li class="tHeading6 listHeading">Advanced search</li>
+                <li class="tHeading5 listButton"><span>Sort</span>
+                    <section>
+                        <div>
+                            <h4 class="tHeading6 listHeading p2LR">Sort by</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSortCategoryA">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selSortCategoryA" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSortDirectionA" class="valueBtn tL" type="button" data-on="Ascending" data-off="Descending" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Direction</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <h4 class="tLabel listHeading p2LR">Then by</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSortCategoryB">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selSortCategoryB" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSortDirectionB" class="valueBtn tL" type="button" data-on="Ascending" data-off="Descending" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Direction</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </li>
+                <li class="tHeading5 listButton"><span>Filter</span>
+                    <section>
+                        <div>
+                            <h4 class="tHeading6 listHeading p2LR">Filter A</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterCategoryA">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterCategoryA" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnFilterRuleA" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p2LR p2B">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterValuesA">Values</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterValuesA" class="selectBtn" multiple tabindex="0">
+                                    </select>
+                                </div>
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Filter B</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterCategoryB">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterCategoryB" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnFilterRuleB" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p2LR p2B">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterValuesB">Values</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterValuesB" class="selectBtn" multiple tabindex="0">
+                                    </select>
+                                </div>
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Filter C</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterCategoryC">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterCategoryC" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnFilterRuleC" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p2LR p2B">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterValuesC">Values</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterValuesC" class="selectBtn" multiple tabindex="0">
+                                    </select>
+                                </div>
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Filter D</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterCategoryD">Category</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterCategoryD" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnFilterRuleD" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p2LR p2B">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selFilterValuesD">Values</label>
+                                    <span class="tBody" role="presentation"></span>
+                                    <select id="selFilterValuesD" class="selectBtn" multiple tabindex="0">
+                                    </select>
+                                </div>
+                            </div>
+                            <hr class="divider">
+                        </div>
+                    </section>
+                </li>
+                <li class="tHeading5 listButton"><span>Search</span>
+                    <section>
+                        <div>
+                            <p class="tNote p2LR pT">Leave a space between words to search for any of them.</p>
+                            <h4 class="tHeading6 listHeading p2LR">Search A</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSearchCategoryA">Category</label>
+                                    <span class="tBody" role="presentation">None</span>
+                                    <select id="selSearchCategoryA" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSearchRuleA" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p4 p2T">
+                                <label class="tLabel" for="inpSearchValuesA">Values</label>
+                                <input id="inpSearchValuesA" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Search B</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSearchCategoryB">Category</label>
+                                    <span class="tBody" role="presentation">None</span>
+                                    <select id="selSearchCategoryB" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSearchRuleB" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p4 p2T">
+                                <label class="tLabel" for="inpSearchValuesB">Values</label>
+                                <input id="inpSearchValuesB" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Search C</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSearchCategoryC">Category</label>
+                                    <span class="tBody" role="presentation">None</span>
+                                    <select id="selSearchCategoryC" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSearchRuleC" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p4 p2T">
+                                <label class="tLabel" for="inpSearchValuesC">Values</label>
+                                <input id="inpSearchValuesC" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Search D</h4>
+                            <div class="grid gC g2C gGapBig p2">
+                                <div class="selectBtnRoot tL">
+                                    <label class="tLabel" for="selSearchCategoryD">Category</label>
+                                    <span class="tBody" role="presentation">None</span>
+                                    <select id="selSearchCategoryD" class="selectBtn" tabindex="0">
+                                    </select>
+                                </div>
+                                <button id="btnSearchRuleD" class="valueBtn tL" type="button" data-on="Inclusive" data-off="Exclusive" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Rule</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <div class="p4 p2T">
+                                <label class="tLabel" for="inpSearchValuesD">Values</label>
+                                <input id="inpSearchValuesD" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                        </div>
+                    </section>
+                </li>
+                <li class="tHeading6 listHeading">Other</li>
+                <li class="tHeading5 listButton"><span>Display</span>
+                    <section>
+                        <div>
+                            <h4 class="tHeading6 listHeading p2LR">Field labels</h4>
+                            <div class="p2">
+                                <button id="btnFieldJobTitle" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Job title</span>
+                                    <span class="tBody"></span>
+                                </button>
+                                <button id="btnFieldDepartment" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Department</span>
+                                    <span class="tBody"></span>
+                                </button>
+                                <button id="btnFieldLocation" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Location</span>
+                                    <span class="tBody"></span>
+                                </button>
+                                <button id="btnFieldEmail" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Email</span>
+                                    <span class="tBody"></span>
+                                </button>
+                                <button id="btnFieldName" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Name</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                            <h4 class="tHeading6 listHeading p2LR">Theme</h4>
+                            <div class="p2">
+                                <button id="btnTheme" class="valueBtn tL" type="button" data-on="Dark" data-off="Light" data-is-on="1" tabindex="0">
+                                    <span class="tLabel">Theme</span>
+                                    <span class="tBody"></span>
+                                </button>
+                            </div>
+                        </div>
+                    </section>
+                </li>
+            </ul>
+        </nav>
+
+        <script defer src="lib/jquery-3.5.1/jquery.min.js"></script>
+        <script defer src="lib/mmenu-8.5.20/mmenu.js"></script>
+        <script defer src="lib/micromodal-0.4.6/micromodal.min.js"></script>
+        <script defer src="js/index.js"></script>
+    </body>
+</html>
