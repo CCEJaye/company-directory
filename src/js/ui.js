@@ -83,8 +83,8 @@
     
         $("#btnAdd").on("click", ifReadyDoThen(
             () => {
-                resetSelections();
                 setSelecting(false);
+                resetSelections();
                 Ui.updateRow();
             },
             () => {}
@@ -345,10 +345,10 @@
             } else if (ele.hasClass("listItem")) {
                 const itemId = ele.data("id");
                 if (itemId) {
-                    resetSelections();
                     const c = ele.children(".badge");
+                    setSelecting(false, true);
+                    resetSelections();
                     addSelection(itemId, c.children(".icon"), c.children(".badgeIcon"));
-                    setSelecting(false);
                     Ui.updateRow();
                 }
             }
@@ -358,6 +358,9 @@
             
         $("#preloader").delay(200).fadeOut(Util.cssVar("very-slow"), "swing");
         $("#menu").delay(200).css("opacity", "");
+        $(".mm-wrapper__blocker").on("mousedown", () => {
+            $("#btnMenuBack").trigger("click");
+        })
     }
 
     const resetSelections = () => {
@@ -399,7 +402,7 @@
         );
     }
 
-    const setSelecting = (show = true) => {
+    const setSelecting = (show = true, ignoreActions = false) => {
         isSelecting = show;
         if (show) {
             Util.swap("#actions", "#actionsBasic", "medium");
@@ -416,7 +419,9 @@
             for (let i = 0; i < selectedIds.length; i++) {
                 Util.swap(selectedBadges[i], selectedIcons[i]);
             }
-            Util.swap("#actionsBasic", "#actions", "medium");
+            if (!ignoreActions) {
+                Util.swap("#actionsBasic", "#actions", "medium");
+            }
         }
     }
 
@@ -533,7 +538,11 @@
                     const param = params[key];
                     const column = param.columnName;
                     if (param.isForeign) continue;
-                    newItem[column] = v.data[column] || item[column];
+                    if (v.data[column] === -1) {
+                        newItem[column] = item[column];
+                    } else {
+                        newItem[column] = v.data[column] || item[column];
+                    }
                     if (isEdit) {
                         hasChanged = v.data[column] !== item[column] || hasChanged;
                     } else if (param.updating === "ref") {
@@ -653,8 +662,8 @@
                 $("#inpRowEmail").val(isEdit ? data.email : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
                 Comps.updateSelect("#selRowDepartment",
-                    (isAdd ? Generate.emptyOption() : "") + Generate.selectOptionsByExistingRef("name", Data.getFullList("department")),
-                    isEdit ? data.department : "");
+                    Generate.emptyOption() + Generate.selectOptionsByExistingRef("name", Data.getFullList("department")),
+                    isEdit ? [data.department] : ["none"]);
                 break;
             case "department":
                 $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 
@@ -664,9 +673,8 @@
                 $("#inpRowName").val(isEdit ? data.name : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
                 Comps.updateSelect("#selRowLocation",
-                    (isAdd ? Generate.emptyOption() : "") 
-                        + Generate.selectOptionsByExistingRef("name", Data.getFullList("location")),
-                    isEdit ? data.department : "");
+                    Generate.emptyOption() + Generate.selectOptionsByExistingRef("name", Data.getFullList("location")),
+                    isEdit ? [data.location] : ["none"]);
                 break;
             case "location":
                 $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 

@@ -7,8 +7,10 @@
             const childCount = $(this).children("option").length;
             const selected = $(this).val();
             let value = "";
-            if (!Array.isArray(selected) || selected.length === 1) {
-                value = $(this).children(`option[value="` + selected + `"]`).html();
+            if (!Array.isArray(selected)) {
+                value = $(this).children(`option[value="` + selected + `"]`).html() || selected;
+            } else if (selected.length === 1) {
+                value = selected[0] === "none" ? "None" : selected[0];
             } else if (selected.length > 1) {
                 value = selected.length + " selected";
             } else {
