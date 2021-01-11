@@ -44,9 +44,10 @@
         return;
     }
 
-    Data.getWhere = (table = "", searchKey = "", searchValue = "", returnKey = "") => {
+    Data.getWhere = (table = "", searchKey = "", searchValue = "", returnKey = "", excludeIds = []) => {
         const list = Data.getFullList(table);
         for (let i = 0; i < list.length; i++) {
+            if (excludeIds.length && excludeIds.includes(Number.parseInt(list[i].id))) continue;
             if (list[i][searchKey] === searchValue) return list[i][returnKey];
         }
         return -1;
@@ -72,19 +73,21 @@
     }
 
     const applyListOptions = (table = "") => {
-        lists[table].altered = sortList(searchList(filterList(lists[table].original)), table);
+        lists[table].altered = sortList(searchList(filterList(
+                lists[table].original, table), 
+            table), 
+        table);
     }
 
-    const filterList = (list = []) => {
-        return filter(list, "filter");
+    const filterList = (list = [], table = "") => {
+        return filter(list, "filter", table);
     }
 
-    const searchList = (list = []) => {
-        return filter(list, "search");
+    const searchList = (list = [], table = "") => {
+        return filter(list, "search", table);
     }
 
-    const filter = (list = [], filterOrSearch = "filter") => {
-        const table = State.all.currentTable;
+    const filter = (list = [], filterOrSearch = "filter", table = "") => {
         const options = State.all[table];
         const newList = [];
         const isFilter = filterOrSearch === "filter";
@@ -109,31 +112,31 @@
             }
             if (isExcluded) continue;
             if (incKeys.length) {
-                loop2: for (let j = 0; j < incKeys.length; j++) {
+                let matchedByAll = true;
+                for (let j = 0; j < incKeys.length; j++) {
                     const category = incKeys[j];
                     const values = options[filterOrSearch].inclusive[category];
-                    if (category === "none") {
+                    if (category === "none" || !values.length) {
                         continue;
                     }
-                    if (!values.length) {
-                        newList.push(o);
-                        break;
-                    }
+                    let matchedByAny = false;
                     for (let k = 0; k < values.length; k++) {
                         const matched = isFilter 
                             ? o[category].toLowerCase() === values[k].toLowerCase()
                             : o[category].toLowerCase().includes(values[k].toLowerCase());
-                        if (matched) {
-                            newList.push(o);
-                            break loop2;
+                        if (matched){
+                            matchedByAny = true;
                         }
                     }
-                }       
+                    if (!matchedByAny) {
+                        matchedByAll = false;
+                    }
+                }
+                if (matchedByAll) newList.push(o);
             } else {
                 newList.push(o);
             }
         }
-        console.log("filter", newList);
         return newList;
     }
 
@@ -149,7 +152,6 @@
             if (!catB || catB === "none" || !dirB || primaryValue !== 0) return primaryValue;
             return getComparison(p, q, dirB === "asc", catB);
         });
-        console.log("sorted", list);
         return list;
     }
 
@@ -180,6 +182,17 @@
             }
         );
         h.execute();
+    }
+
+    Data.get = (table = "", ids = [0], onComplete = (success = true) => {}) => {
+        switch(table) {
+            case "personnel":
+                return Data.getPersonnel(ids, onComplete);
+            case "department":
+                return Data.getDepartment(ids, onComplete);
+            case "location":
+                return Data.getLocation(ids, onComplete);
+        }
     }
 
     Data.add = (table = "", data = {}, onComplete = (success = true) => {}) => {

@@ -49,7 +49,7 @@ module.exports = function (grunt) {
                 dest: "dist/public_html/<%= pkg.name %>/css/index.css",
             },
             js: {
-                src: "temp/index-concat.js",//.min.js",
+                src: "temp/index.min.js",
                 dest: "dist/public_html/<%= pkg.name %>/js/index.js",
                 options: {
                     process: function(content) {

@@ -91,6 +91,23 @@
         });
     }
 
+    Menu.updateSelection = (table = "") => {
+        $("#btnPersonnel, #btnDepartment, #btnLocation").removeClass("selected");
+        switch (table) {
+            case "personnel":
+                $("#btnPersonnel").addClass("selected");
+                break;
+            case "department":
+                $("#btnDepartment").addClass("selected");
+                break;
+            case "location":
+                $("#btnLocation").addClass("selected");
+                break;
+            default:
+                throw new Error("table does not exist");
+        }
+    }
+
     Menu.open = () => {
         menu.API.open();
     }

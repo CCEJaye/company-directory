@@ -1,11 +1,4 @@
-
-
 $(window).on("load", () => {
-    // get all data
-    // load state
-    // apply data and state to UI
-    // populate
-
     Comps.setLoading();
     State.load();
     Menu.init();
@@ -13,7 +6,7 @@ $(window).on("load", () => {
     Data.getAll((success) => {
         if (!success) {
             Components.setError();
-            throw new Error("unhandled error");
+            throw new Error("Connection failed");
         }
         Data.regenerateLists(true);
         Ui.init();

@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en-GB">
     <head>
-        <title>World Information Finder</title>
+        <title>Company Directory</title>
         <meta charset="UTF-8">
         <meta name="author" content="Charles Jaye">
-        <meta name="description" content="Map-based application providing global and country-specific information from a collection of API sources">
-        <meta name="keywords" content="API, map, world, global, information, statistics, reports, data, leaflet, interactive, weather, news, politics, climate, currency, exchange, wind, precipitation, rain, snow, sunrise, sunset, temperature, disasters, history, corona, COVID-19, virus, epidemic, borders, country, population, language, coordinates, region, time, timezone, units, area, air, wiki, wikipedia, wikimedia, wikidata, yahoo, terrain, clouds, app, coronatracker, relief web, arcgis, ambee, opencage, restcountries">
+        <meta name="description" content="Database application providing CRUD functionality for viewing and editing">
+        <meta name="keywords" content="CRUD, database, SQL, InnoDB, php, personnel, department, location, fields, rows, tables, filter, sort, search, create, read, update, delete, employees, job, email">
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1">
         <link rel="icon" href="favicon.png">
         <link rel="preconnect" href="https://fonts.gstatic.com">
@@ -15,7 +15,7 @@
         <link rel="stylesheet" type="text/css" href="css/index.css">
     </head>
 
-    <body id="body">
+    <body id="body" style="overflow: hidden;">
 
         <div id="pageWrapper" class="fill">
 
@@ -28,93 +28,43 @@
                     <div class="loader run"></div>
                 </header>
 
-                <main id="main">
-                    <section id="sectionTable" class="section grid gR gRmf" style="display: none;">
-                        <h2 id="tableHeading" class="tHeading1 sectionHeader">Table</h2>
-                        <ol id="tableList">
-                            <li class="tHeading6 listHeader">A</li>
-                        </ol>
-                    </section>
-                    <section id="sectionRow" class="section grid gR gRmf" style="display: none;">
-                        <h2 id="rowHeading" class="tHeading1 sectionHeader">Row</h2>
-                        <form id="rowForm">
-                            <div id="inpRowFirstNameRoot" class="p2 pTB">
-                                <label class="tLabel" for="inpRowFirstName">First name</label>
-                                <input id="inpRowFirstName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
-                            </div>
-                            <div id="inpRowLastNameRoot" class="p2 pTB">
-                                <label class="tLabel" for="inpRowLastName">Last name</label>
-                                <input id="inpRowLastName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
-                            </div>
-                            <div id="inpRowJobTitleRoot" class="p2 pTB">
-                                <label class="tLabel" for="inpRowJobTitle">Job title</label>
-                                <input id="inpRowJobTitle" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
-                            </div>
-                            <div id="inpRowEmailRoot" class="p2 pTB">
-                                <label class="tLabel" for="inpRowEmail">Email</label>
-                                <input id="inpRowEmail" class="input tInput" type="email" autocapitalize="off" autocomplete="empty">
-                            </div>
-                            <div id="selRowDepartmentRoot" class="selectBtnRoot tL p2 pTB">
-                                <label class="tLabel" for="selRowDepartment">Department</label>
-                                <span class="tBody" role="presentation"></span>
-                                <select id="selRowDepartment" class="selectBtn" tabindex="0">
-                                </select>
-                            </div>
-                            <div id="inpRowNameRoot" class="p2 pTB">
-                                <label class="tLabel" for="inpRowName">Name</label>
-                                <input id="inpRowName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty">
-                            </div>
-                            <div id="selRowLocationRoot" class="selectBtnRoot tL p2 pTB">
-                                <label class="tLabel" for="selRowLocation">Location</label>
-                                <span class="tBody" role="presentation"></span>
-                                <select id="selRowLocation" class="selectBtn" tabindex="0">
-                                </select>
-                            </div>
-                        </form>
-                    </section>
-                </main>
-
                 <footer id="footer">
-                    <div id="actionsBasic" class="grid gC gFillMinC p2LR">
-                        <div class="grid gR">
-                            <div class="grid gC gCfmm">
-                                <input id="inpSearch" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
-                                <button id="btnClear" class="iconBtn mini" type="button" aria-label="Clear search" tabindex="0">
-                                    <svg role="img"><use xlink:href="img/icons.svg#cross"></use></svg>
-                                </button>
-                                <button id="btnSearch" class="iconBtn mini" type="button" aria-label="Submit search" tabindex="0">
-                                    <svg role="img"><use xlink:href="img/icons.svg#search"></use></svg>
-                                </button>
+                    <div id="actionsBasic" class="p2LR">
+                        <div id="basicB" class="grid gC">
+                            <div class="selectBtnRoot tC">
+                                <label class="tLabel" for="selCategory">Category</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selCategory" class="selectBtn" tabindex="0">
+                                </select>
                             </div>
-                            <div class="grid gC">
-                                <div class="selectBtnRoot tC">
-                                    <label class="tLabel" for="selCategory">Category</label>
-                                    <span class="tBody" role="presentation"></span>
-                                    <select id="selCategory" class="selectBtn" tabindex="0">
-                                    </select>
-                                </div>
-                                <button id="btnSort" class="valueBtn" type="button" data-on="Ascending" data-off="Descending" data-is-on="1" tabindex="0">
-                                    <span class="tLabel">Sort</span>
-                                    <span class="tBody"></span>
-                                </button>
-                                <div class="selectBtnRoot tC">
-                                    <label class="tLabel" for="selFilter">Filter</label>
-                                    <span class="tBody" role="presentation"></span>
-                                    <select id="selFilter" class="selectBtn" multiple tabindex="0">
-                                    </select>
-                                </div>
+                            <button id="btnSort" class="valueBtn" type="button" data-on="Ascending" data-off="Descending" data-is-on="1" tabindex="0">
+                                <span class="tLabel">Sort</span>
+                                <span class="tBody"></span>
+                            </button>
+                            <div class="selectBtnRoot tC">
+                                <label class="tLabel" for="selFilter">Filter</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selFilter" class="selectBtn" multiple tabindex="0">
+                                </select>
                             </div>
                         </div>
-                        <div class="grid gR">
-                            <button id="btnAdd" class="iconBtn" type="button" tabindex="0">
-                                <span class="tLabel">Add</span>
-                                <svg role="img"><use xlink:href="img/icons.svg#plus"></use></svg>
+                        <div id="basicA" class="grid gC gCfmm">
+                            <input id="inpSearch" class="input tInput" type="text" placeholder="Search" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            <button id="btnClear" class="iconBtn mini" type="button" aria-label="Clear search" tabindex="0">
+                                <svg role="img"><use xlink:href="img/icons.svg#cross"></use></svg>
                             </button>
-                            <button id="btnMenu" class="iconBtn" type="button" tabindex="0">
-                                <span class="tLabel">Menu</span>
-                                <svg role="img"><use xlink:href="img/icons.svg#list"></use></svg>
+                            <button id="btnSearch" class="iconBtn mini" type="button" aria-label="Submit search" tabindex="0">
+                                <svg role="img"><use xlink:href="img/icons.svg#search"></use></svg>
                             </button>
                         </div>
+                        <button id="btnAdd" class="iconBtn" type="button" tabindex="0">
+                            <span class="tLabel">Add</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#plus"></use></svg>
+                        </button>
+                        <button id="btnMenu" class="iconBtn" type="button" tabindex="0">
+                            <span class="tLabel">Menu</span>
+                            <svg role="img"><use xlink:href="img/icons.svg#list"></use></svg>
+                        </button>
                     </div>
 
                     <div id="actions" class="grid gC p2LR">
@@ -148,6 +98,54 @@
                         </button>
                     </div>
                 </footer>
+
+                <main id="main">
+                    <section id="sectionTable" class="section grid gR gRmf" style="display: none;">
+                        <h2 id="tableHeading" class="tHeading1 sectionHeader">Table</h2>
+                        <div class="listWrapper">
+                            <ol id="tableList" tabindex="0">
+                                <li class="tHeading6 listHeader">A</li>
+                            </ol>
+                        </div>
+                    </section>
+                    <section id="sectionRow" class="section grid gR gRmf" style="display: none;">
+                        <h2 id="rowHeading" class="tHeading1 sectionHeader">Row</h2>
+                        <form id="rowForm">
+                            <div id="inpRowFirstNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowFirstName">First name</label>
+                                <input id="inpRowFirstName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <div id="inpRowLastNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowLastName">Last name</label>
+                                <input id="inpRowLastName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <div id="inpRowJobTitleRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowJobTitle">Job title</label>
+                                <input id="inpRowJobTitle" class="input tInput" type="text" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <div id="inpRowEmailRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowEmail">Email</label>
+                                <input id="inpRowEmail" class="input tInput" type="email" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <div id="selRowDepartmentRoot" class="selectBtnRoot tL p2 pTB">
+                                <label class="tLabel" for="selRowDepartment">Department</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selRowDepartment" class="selectBtn" tabindex="0">
+                                </select>
+                            </div>
+                            <div id="inpRowNameRoot" class="p2 pTB">
+                                <label class="tLabel" for="inpRowName">Name</label>
+                                <input id="inpRowName" class="input tInput" type="text" autocapitalize="off" autocomplete="empty" tabindex="0">
+                            </div>
+                            <div id="selRowLocationRoot" class="selectBtnRoot tL p2 pTB">
+                                <label class="tLabel" for="selRowLocation">Location</label>
+                                <span class="tBody" role="presentation"></span>
+                                <select id="selRowLocation" class="selectBtn" tabindex="0">
+                                </select>
+                            </div>
+                        </form>
+                    </section>
+                </main>
             </div>
 
             <div id="modal" class="modal micromodal-slide" aria-hidden="true">
@@ -160,9 +158,12 @@
                             <p class="tBody">First name cannot be empty.</p>
                             <p class="tBody">Last name cannot be empty.</p>
                         </main>
-                        <footer class="modal__footer">
-                            <button id="modalCloseBtn" class="valueBtn" type="button">
-                                <span class="tBody">Okay</span>
+                        <footer class="grid gC modal__footer">
+                            <button id="modalBtnPositive" class="valueBtn" type="button">
+                                <span class="tLabel">Okay</span>
+                            </button>
+                            <button id="modalBtnNegative" class="valueBtn" type="button">
+                                <span class="tLabel">Cancel</span>
                             </button>
                         </footer>
                     </div>
@@ -179,7 +180,7 @@
                 <li class="tHeading6 listHeading">Advanced search</li>
                 <li class="tHeading5 listButton"><span>Sort</span>
                     <section>
-                        <div>
+                        <div class="menuWrapper">
                             <h4 class="tHeading6 listHeading p2LR">Sort by</h4>
                             <div class="grid gC g2C gGapBig p2">
                                 <div class="selectBtnRoot tL">
@@ -211,7 +212,7 @@
                 </li>
                 <li class="tHeading5 listButton"><span>Filter</span>
                     <section>
-                        <div>
+                        <div class="menuWrapper">
                             <h4 class="tHeading6 listHeading p2LR">Filter A</h4>
                             <div class="grid gC g2C gGapBig p2">
                                 <div class="selectBtnRoot tL">
@@ -302,7 +303,7 @@
                 </li>
                 <li class="tHeading5 listButton"><span>Search</span>
                     <section>
-                        <div>
+                        <div class="menuWrapper">
                             <p class="tNote p2LR pT">Leave a space between words to search for any of them.</p>
                             <h4 class="tHeading6 listHeading p2LR">Search A</h4>
                             <div class="grid gC g2C gGapBig p2">
@@ -378,7 +379,7 @@
                 <li class="tHeading6 listHeading">Other</li>
                 <li class="tHeading5 listButton"><span>Display</span>
                     <section>
-                        <div>
+                        <div class="menuWrapper">
                             <h4 class="tHeading6 listHeading p2LR">Field labels</h4>
                             <div class="p2">
                                 <button id="btnFieldJobTitle" class="valueBtn tL" type="button" data-on="Show" data-off="Hide" data-is-on="1" tabindex="0">

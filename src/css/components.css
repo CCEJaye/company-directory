@@ -45,7 +45,7 @@
     transition-property: color;
     transition-duration: var(--medium);
     cursor: pointer;
-    background: var(--secondary2);
+    background: var(--secondary);
     scrollbar-width: thin;
     opacity: 0;
     width: 100%;
@@ -53,6 +53,7 @@
     left: 0;
     right: 0;
     bottom: 0;
+    top: 0;
     overflow-y: auto;
     height: 100%;
     max-height: unset;
@@ -67,7 +68,7 @@
 }
 
     .iconBtn:focus, .valueBtn:focus, .selectBtnRoot:focus-within {
-        background: var(--focus-shadow);
+        background: var(--secondary3);
         transition-duration: var(--medium);
     }
 
@@ -77,31 +78,56 @@
 
     .selectBtn:focus {
         bottom: 100%;
+        left: 0;
+        right: 100%;
+        top: unset;
         opacity: 1;
         height: unset;
         max-height: unset;
     }
 
+    .selectBtn.flipY:focus {
+        bottom: unset;
+        top: 100%;
+    }
+
+    .selectBtn.flipX:focus {
+        left: 0;
+        right: 100%;
+    }
+
     .selectBtn option {
         background: var(--secondary4);
-        /* for random firefox bug */
-        pointer-events: none;
         padding: 1rem 2rem;
+        text-overflow: ellipsis;
+        overflow: hidden;
+        white-space: nowrap;
+        pointer-events: none;
+        
+        font-size: 1.2em;
+        font-weight: 400;
+        line-height: 1.5;
+        letter-spacing: 0.04em;
+        text-transform: unset;
+        color: var(--primary);
     }
 
     .selectBtn:focus option {
         pointer-events: auto;
     }
 
-    .selectBtnRoot label, .selectBtnRoot span {
+    .valueBtn span, .selectBtnRoot label, .selectBtnRoot span {
         pointer-events: none;
         position: absolute;
-        left: 2rem;
-        right: 2rem;
+        left: 0;
+        right: 0;
         bottom: 50%;
     }
 
-    .selectBtnRoot span:last-of-type {
+    .valueBtn.tL span, .selectBtnRoot.tL label, .selectBtnRoot.tL span { padding-left: 2rem; }
+    .valueBtn.tR span, .selectBtnRoot.tR label, .selectBtnRoot.tR span { padding-right: 2rem; }
+
+    .valueBtn span:last-of-type, .selectBtnRoot span:last-of-type {
         top: 50%;
         bottom: unset;
     }
@@ -111,7 +137,7 @@
         transition-duration: 0ms;
     }
 
-    .iconBtn:disabled, .valueBtn:disabled, .selectBtnRoot:disabled {
+    .iconBtn:disabled span, .valueBtn:disabled span, .selectBtnRoot:disabled span, .selectBtnRoot:disabled label {
         color: var(--primary4);
     }
 
@@ -119,7 +145,7 @@
         min-width: 4rem;
     }
 
-    .iconBtn span, .valueBtn span, .selectBtnRoot span, .selectBtnRoot label {
+    .iconBtn span {
         display: block;
         text-overflow: ellipsis;
         word-wrap: normal;

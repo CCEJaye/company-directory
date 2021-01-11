@@ -6,12 +6,12 @@
     */
     State.all = {
         personnel: {
-            category: "firstName",
-            filter: { inclusive: { firstName: [], none: [], none: [], none: [] }, exclusive: {} },
-            search: { inclusive: { firstName: [], none: [], none: [], none: [] }, exclusive: {} },
+            category: "department",
+            filter: { inclusive: { department: [] }, exclusive: {} },
+            search: { inclusive: { firstName: [] }, exclusive: {} },
             sort: {
-                primary: { category: "firstName", direction: "asc" },
-                secondary: { category: "none", direction: "asc" }
+                primary: { category: "department", direction: "asc" },
+                secondary: { category: "firstName", direction: "asc" }
             },
             displayFields: {
                 jobTitle: true,
@@ -21,12 +21,12 @@
             }
         },
         department: {
-            category: "name",
-            filter: { inclusive: { name: [] }, exclusive: {}},
+            category: "location",
+            filter: { inclusive: { location: [] }, exclusive: {}},
             search: { inclusive: { name: [] }, exclusive: {}},
             sort: {
-                primary: { category: "name", direction: "asc" },
-                secondary: { category: "none", direction: "asc" }
+                primary: { category: "location", direction: "asc" },
+                secondary: { category: "name", direction: "asc" }
             },
             displayFields: {
                 location: true
@@ -44,8 +44,7 @@
         },
         theme: "dark",
         currentSection: "table",
-        currentTable: "personnel",
-        currentRowIds: []
+        currentTable: "personnel"
     }
 
     State.parameters = {
@@ -82,7 +81,7 @@
             },
             email: {
                 updating: "text",
-                filterAdv: "existingFirstChar",
+                filterAdv: "existingRef",
                 categorised: "firstChar",
                 display: "Email",
                 isForeign: false,
@@ -196,34 +195,24 @@
 
     State.revert = () => {
         if (!Util.countDifferences(State.all, State.toCommit, true)) {
-            console.log("revert unnecessary");
             return false;
         }
-        console.log("reverting");
-        console.log(State.toCommit);
         State.toCommit = Util.copyObj(State.all);
-        console.log("reverted");
-        console.log(State.toCommit);
         return true;
     }
 
     State.load = () => {
-        //const state = Util.load("cd-state");
-        //if (state) State.all = state;
+        const state = Util.load("cd-state");
+        if (state) State.all = state;
         State.revert();
         return true;
     }
 
     State.commit = () => {
         if (!Util.countDifferences(State.all, State.toCommit, true)) {
-            console.log("commit unnecessary");
             return false;
         }
-        console.log("committing");
-        console.log(State.all);
         State.all = Util.copyObj(State.toCommit);
-        console.log("committed");
-        console.log(State.all);
         Util.save("cd-state", State.all);
         State.onValidCommit();
         return true;
@@ -362,13 +351,6 @@
     State.updateTheme = (theme = "") => {
         if (State.toCommit.theme === theme) return false;
         State.toCommit.theme = theme;
-        return true;
-    }
-
-    State.updateRowIds = (ids = [0]) => {
-        const currentIds = State.toCommit.currentRowIds;
-        if (!Util.countDifferences(currentIds, ids, true)) return false;
-        State.toCommit.currentRowIds = ids;
         return true;
     }
 

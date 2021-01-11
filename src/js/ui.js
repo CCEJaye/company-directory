@@ -2,53 +2,58 @@
 
     let updating = false;
     let allowBasicStateChange = true;
-    let requiresListChange = false;
     let shouldUpdateUi = true;
-    let selectMode = false;
+    let isSelecting = false;
+    let selectedIds = [];
+    let selectedBadges = [];
+    let selectedIcons = [];
 
-    const ifReadyDoThen = (fnA = () => {}, fnB = () => {}) => async () => {
+    const ifReadyDoThen = (fnA = async () => {}, fnB = async () => {}) => async () => {
         if (updating) return;
         updating = true;
-        $.when(fnA()).done(fnB());
+        $.when(await fnA()).done(await fnB());
         updating = false;
     }
 
     Ui.init = () => {
         State.onValidCommit = () => {
-            requiresListChange = true;
             Ui.refresh();
             Comps.setFinished();
         }
 
         $("#selCategory").on("change", ifReadyDoThen(
-            () => $("#selSortCategoryA").val($("#selCategory").val()).trigger("change"),
-            () => {
+            async () => Comps.setSelect("#selSortCategoryA", $("#selCategory").val()),
+            async () => {
                 if (allowBasicStateChange) {
                     State.revert();
                     State.updateCategory($("#selCategory").val());
-                    State.updateSort(getSortData());
+                    State.updateSort(Generate.sortData());
                     State.commit();
                 }
             }
         ));
+
+        // $("#selCategory").on("change", () => {
+        //     $.when()
+        // });
     
         $("#btnSort").on("click", ifReadyDoThen(
-            () => $("#btnSortDirectionA").trigger("click"),
+            () => Comps.toggle("#btnSortDirectionA"),
             () => {
                 if (allowBasicStateChange) {
                     State.revert();
-                    State.updateSort(getSortData());
+                    State.updateSort(Generate.sortData());
                     State.commit();
                 }
             }
         ));
     
         $("#selFilter").on("change", ifReadyDoThen(
-            () => $("#selFilterValuesA").val($("#selFilter").val()).trigger("change"),
+            () => Comps.setSelect("#selFilterValuesA", $("#selFilter").val()),
             () => {
                 if (allowBasicStateChange) {
                     State.revert();
-                    State.updateFilter(getFilterData());
+                    State.updateFilter(Generate.filterData());
                     State.commit();
                 }
             }
@@ -62,7 +67,7 @@
             },
             () => {
                 State.revert();
-                State.updateSearch(getSearchData());
+                State.updateSearch(Generate.searchData());
                 State.commit();
             }
         ));
@@ -71,15 +76,15 @@
             () => $("#inpSearchValuesA").val($("#inpSearch").val()),
             () => {
                 State.revert();
-                State.updateSearch(getSearchData());
+                State.updateSearch(Generate.searchData());
                 State.commit();
             }
         ));
     
         $("#btnAdd").on("click", ifReadyDoThen(
             () => {
-                selectMode = false;
-                State.updateRowIds([]);
+                resetSelections();
+                setSelecting(false);
                 Ui.updateRow();
             },
             () => {}
@@ -138,11 +143,11 @@
         $("#selSortCategoryA").on("change", ifReadyDoThen(
             () => {
                 allowBasicStateChange = false;
-                $("#selCategory").val($("#selSortCategoryA").val()).trigger("change");
+                Comps.setSelect("#selCategory", $("#selSortCategoryA").val());
             },
             () => {
                 State.updateCategory($("#selCategory").val());
-                State.updateSort(getSortData());
+                State.updateSort(Generate.sortData());
                 allowBasicStateChange = true;
             }
         ));
@@ -150,21 +155,21 @@
         $("#btnSortDirectionA").on("click", ifReadyDoThen(
             () => {
                 allowBasicStateChange = false;
-                $("#btnSort").data("is-on", !$("#btnSortDirectionA").data("is-on")).trigger("click");
+                Comps.setToggle("#btnSort", $("#btnSortDirectionA").data("is-on"));
             },
             () => {
-                State.updateSort(getSortData())
+                State.updateSort(Generate.sortData())
                 allowBasicStateChange = true;
             }
         ));
     
         $("#selSortCategoryB").on("change", ifReadyDoThen(
-            () => State.updateSort(getSortData()),
+            () => State.updateSort(Generate.sortData()),
             () => {}
         ));
     
         $("#btnSortDirectionB").on("click", ifReadyDoThen(
-            () => State.updateSort(getSortData()),
+            () => State.updateSort(Generate.sortData()),
             () => {}
         ));
     
@@ -175,31 +180,28 @@
                     const table = State.toCommit.currentTable;
                     const cat = $("#selFilterCategory" + char).val();
                     const valuesType = cat === "none" ? "" : State.parameters[table][cat].filterAdv;
-                    let selectOptionsValues = char === "A" ? "" : getEmptyOption(true);
+                    let selectOptionsValues = char === "A" ? "" : Generate.emptyOption();
                     if (valuesType === "existingRef") {
-                        selectOptionsValues += getSelectOptionsByRef([], cat, Data.getFullList(table));
+                        selectOptionsValues += Generate.selectOptionsByExistingRef(cat, Data.getFullList(table));
                     } else if (valuesType === "existingFirstChar") {
-                        selectOptionsValues += getSelectOptionsByChar([], cat, Data.getFullList(table));
+                        selectOptionsValues += Generate.selectOptionsByChar(cat, Data.getFullList(table));
                     }
-                    $("#selFilterValues" + char).html(selectOptionsValues)
-                        .trigger("change");
-                    $("#btnFilterRule" + char).prop("disabled", cat === "none");
+                    Comps.updateSelect("#selFilterValues" + char, selectOptionsValues, "none");
+                    $("#btnFilterRule" + char + ", #selFilterValues" + char).prop("disabled", cat === "none");
                     if (char === "A") {
-                        $("#selFilter").html(selectOptionsValues)
-                            .trigger("change");
+                        Comps.updateSelect("#selFilter", selectOptionsValues);
                     }
                 },
-                () => State.updateFilter(getFilterData())
+                () => State.updateFilter(Generate.filterData())
             ));
 
             $("#btnFilterRule" + char).on("click", ifReadyDoThen(
-                () => State.updateFilter(getFilterData()),
-                () => {}
+                () => State.updateFilter(Generate.filterData())
             ));
 
             $("#selFilterValues" + char).on("change", ifReadyDoThen(
-                () => $("#selFilter").val($("#selFilterValues" + char).val()).trigger("change"),
-                () => State.updateFilter(getFilterData())
+                () => Comps.setSelect("#selFilter", $("#selFilterValues" + char).val()),
+                () => State.updateFilter(Generate.filterData())
             ));
 
             $("#selSearchCategory" + char).on("change", ifReadyDoThen(
@@ -214,12 +216,11 @@
                         allowBasicStateChange = true;
                     }
                 },
-                () => State.updateSearch(getSearchData())
+                () => State.updateSearch(Generate.searchData())
             ));
 
             $("#btnSearchRule" + char).on("click", ifReadyDoThen(
-                () => State.updateSearch(getSearchData()),
-                () => {}
+                () => State.updateSearch(Generate.searchData())
             ));
 
             $("#inpSearchValues" + char).on("change", ifReadyDoThen(
@@ -230,15 +231,13 @@
                         allowBasicStateChange = true;
                     }
                 },
-                () => State.updateSearch(getSearchData())
+                () => State.updateSearch(Generate.searchData())
             ));
         }
 
-        $("#btnFieldJobTitle, #btnFieldDepartment, #btnFieldLocation, #btnFieldEmail, #btnFieldName").on("click", ifReadyDoThen(
-            () => {},
-            () => {
-                State.updateFields(getFieldData());
-            }
+        $("#btnFieldJobTitle, #btnFieldDepartment, #btnFieldLocation, #btnFieldEmail, #btnFieldName")
+                .on("click", ifReadyDoThen(
+            () => State.updateFields(Generate.fieldData())
         ));
 
         $("#btnTheme").on("click", ifReadyDoThen(
@@ -253,102 +252,106 @@
                 State.commit();
             }
         ));
-
-        // ********************************************************************
-        // ********************************************************************
     
         $("#btnBack").on("click", ifReadyDoThen(
             () => {
-                State.updateRowIds([]);
-                updateSelections([]);
-                if (!selectMode) {
+                setSelecting(false);
+                resetSelections();
+                if (!isSelecting) {
                     Ui.updateTable();
                 }
-            },
-            () => {
             }
         ));
     
         $("#btnReset").on("click", ifReadyDoThen(
-            () => {},
             () => Ui.updateRow()
         ));
     
         $("#btnSave").on("click", ifReadyDoThen(
-            () => {
-                Ui.handleSave();
-            },
-            () => {}
+            () => Ui.handleSave()
         ));
 
         $("#btnDelete").on("click", ifReadyDoThen(
             () => {
-                const ids = State.toCommit.currentRowIds;
-                if (!ids.length) return;
-                Comps.setLoading();
-                Data.delete(State.all.currentTable, ids, (success) => {
-                    if (!success) {
-                        Comps.setError();
-                    } else {
-                        Data.getAll((success) => {
-                            if (!success) {
+                const table = State.all.currentTable;
+                if (!selectedIds.length) return;
+                if (table === "personnel") {
+                    handleDelete();
+                }
+                if (table === "department") {
+                    Comps.setLoading();
+                    Data.getAll(() => {
+                        const list = Data.getFullList("personnel");
+                        for (let i = 0; i < list.length; i++) {
+                            if (selectedIds.includes(Number.parseInt(list[i].departmentID))) {
                                 Comps.setError();
-                            } else {
-                                requiresListChange = true;
-                                Ui.refresh();
-                                Comps.setFinished();
+                                Comps.showModal("Error", ["One or more rows are dependencies in another table."]);
+                                return;
                             }
-                        });
-                    }
-                });
-            },
-            () => {}
+                        }
+                        handleDelete();
+                    });
+                }
+                if (table === "location") {
+                    Comps.setLoading();
+                    Data.getDepartment(selectedIds, () => {
+                        const list = Data.getFullList("department");
+                        for (let i = 0; i < list.length; i++) {
+                            if (selectedIds.includes(Number.parseInt(list[i].locationID))) {
+                                Comps.setError();
+                                Comps.showModal("Error", ["One or more rows are dependencies in another table."]);
+                                return;
+                            }
+                        }
+                        handleDelete();
+                    });
+                }
+            }
         ));
     
         $("#btnSelectAll").on("click", ifReadyDoThen(
             () => {
-                const idList = Util.mapUnique(Data.getList(State.toCommit.currentTable), (i) => i.id);
-                State.updateRowIds(idList);
+                resetSelections();
+                const idList = Util.mapUnique(Data.getList(State.toCommit.currentTable), (i) => Number.parseInt(i.id));
                 for (let i = 0; i < idList.length; i++) {
-                    const item = idList[i];
-                    $(".listItem[data-id=" + item + "] .badge .icon").show();
-                    $(".listItem[data-id=" + item + "] .badge .badgeIcon").hide();
+                    const id = idList[i];
+                    const icon = $(".listItem[data-id=" + id + "] .badge .icon");
+                    const badge = $(".listItem[data-id=" + id + "] .badge .badgeIcon");
+                    addSelection(id, icon, badge);
+                    Util.swap(icon, badge);
                 }
-            },
-            () => {}
+            }
         ));
 
         $("#btnEdit, #btnEditBatch").on("click", () => {
-            selectMode = false;
             Ui.updateRow();
         });
 
-        $("#tableList").on("click", "li, div", function(e) {
+        $("#tableList").on("click", "li.listItem, div.badge", function(e) {
             const ele = $(this);
             if (ele.hasClass("badge")) {
-                const rowIds = State.toCommit.currentRowIds;
                 const itemId = ele.parent().data("id");
-                let wasSelected = rowIds.includes(itemId);
+                let wasSelected = selectedIds.includes(itemId);
                 if (!itemId) return;
                 if (wasSelected) {
-                    State.updateRowIds(Util.arrayRemove(rowIds, itemId));
-                    swap(ele.children(".badgeIcon"), ele.children(".icon"));
+                    removeSelection(itemId);
+                    Util.swap(ele.children(".badgeIcon"), ele.children(".icon"));
                 } else {
-                    State.updateRowIds(rowIds.concat([itemId]));
-                    swap(ele.children(".icon"), ele.children(".badgeIcon"));
+                    addSelection(itemId, ele.children(".icon"), ele.children(".badgeIcon"));
+                    Util.swap(ele.children(".icon"), ele.children(".badgeIcon"));
                 }
-                updateSelections(State.toCommit.currentRowIds);
-                selectMode = State.toCommit.currentRowIds.length;
+                setSelecting(selectedIds.length);
                 e.stopPropagation();
             } else if (ele.hasClass("listItem")) {
                 const itemId = ele.data("id");
                 if (itemId) {
-                    selectMode = false;
-                    State.updateRowIds([itemId]);
+                    resetSelections();
+                    const c = ele.children(".badge");
+                    addSelection(itemId, c.children(".icon"), c.children(".badgeIcon"));
+                    setSelecting(false);
                     Ui.updateRow();
                 }
             }
-            console.log(State.toCommit.currentRowIds);
         });
 
         Ui.update();
@@ -357,34 +360,70 @@
         $("#menu").delay(200).css("opacity", "");
     }
 
-    const updateSelections = (items = []) => {
-        if (items.length) {
-            swap("#actions", "#actionsBasic");
+    const resetSelections = () => {
+        selectedIds = [];
+        selectedIcons = [];
+        selectedBadges = [];
+    }
+
+    const addSelection = (id = 0, icon = {}, badge = {}) => {
+        selectedIds.push(id);
+        selectedIcons.push(icon);
+        selectedBadges.push(badge);
+    }
+
+    const removeSelection = (id = 0) => {
+        selectedIds = Util.arrayRemove(selectedIds, id);
+        selectedIcons = Util.arrayRemove(selectedIcons, id);
+        selectedBadges = Util.arrayRemove(selectedBadges, id);
+    }
+
+    const handleDelete = () => {
+        const table = State.all.currentTable;
+        if (!selectedIds.length) return;
+        Comps.showDecisionModal("Confirmation", 
+            ["Are you sure you want to delete these rows?", "This cannot be undone."],
+            ["Delete", "Cancel"], [() => {
+                Comps.setLoading();
+                Data.delete(table, selectedIds, (success) => {
+                    if (!success) return Comps.setError();
+                    Data.getAll((success) => {
+                        if (!success) return Comps.setError();
+                        Ui.refresh();
+                        Comps.showModal("Success", ["Rows successfully deleted."]);
+                        Comps.setFinished();
+                        Ui.updateTable();
+                    });
+                });
+            }, () => {}]
+        );
+    }
+
+    const setSelecting = (show = true) => {
+        isSelecting = show;
+        if (show) {
+            Util.swap("#actions", "#actionsBasic", "medium");
+            $("#btnBack,. #btnSelectAll, #btnDelete").show();
+            $("#btnReset, #btnSave").hide();
+            if (selectedIds.length > 1) {
+                $("#btnEditBatch").show();
+                $("#btnEdit").hide();
+            } else {
+                $("#btnEditBatch").hide();
+                $("#btnEdit").show();
+            }
         } else {
-            swap("#actionsBasic", "#actions");
-            swap(".listItem .badge .badgeIcon", ".listItem .badge .icon");
+            for (let i = 0; i < selectedIds.length; i++) {
+                Util.swap(selectedBadges[i], selectedIcons[i]);
+            }
+            Util.swap("#actionsBasic", "#actions", "medium");
         }
-        if (items.length > 1) {
-            $("#btnEditBatch").show();
-            $("#btnEdit").hide();
-        } else {
-            $("#btnEditBatch").hide();
-            $("#btnEdit").show();
-        }
-        $("#btnBack").show();
-        $("#btnSelectAll").show();
-        $("#btnDelete").show();
-        $("#btnReset").hide();
-        $("#btnSave").hide();
     }
 
     Ui.refresh = () => {
-        if (requiresListChange) {
-            Data.regenerateList(State.all.currentTable, true);
-            Ui.populate();
-            Ui.applyFields();
-            requiresListChange = false;
-        }
+        Data.regenerateList(State.all.currentTable, true);
+        Ui.populate();
+        Ui.applyFields();
     }
 
     // sets to defaults - clear
@@ -462,171 +501,15 @@
     }
 
     Ui.populate = () => {
-        const htmlStrs = [];
-        const table = State.all.currentTable;
-        const list = Data.getList(table);
-        const params = State.items[table];
-        const paramKeys = Object.keys(params);
-        const badgeCat = Util.has(params, i => i.isHeading);
-        for (let i = 0 ; i < list.length; i++) {
-            const item = list[i];
-            const badgeVals = item[badgeCat].split(" ");
-            const badgeVal = badgeVals.length > 1 
-                ? badgeVals[0].substr(0, 1) + badgeVals[1].substr(0, 1)
-                : badgeVals[0].substr(0, 2);
-            htmlStrs.push(`<li class="listItem grid gC gCmf" data-id="` + item.id + `">`);
-            htmlStrs.push(`<div class="badge grid gcTop">`);
-            htmlStrs.push(`<span class="tHeading4 gcMiddle badgeIcon">`+badgeVal+`</span>`);
-            htmlStrs.push(`<svg class="icon gcMiddle" role="img" style="display: none;">
-                <use xlink:href="img/icons.svg#save"></use></svg>`);
-            htmlStrs.push(`</div>`);
-            htmlStrs.push(`<article class="gcStart p2L">`);
-            for (let j = 0; j < paramKeys.length; j++) {
-                const p = paramKeys[j];
-                if (params[p].isHeading) {
-                    htmlStrs.push(`<h3 id="itemId-` + p + i + `" class="tHeading5">` + item[p] + `</h3>`);
-                } else {
-                    htmlStrs.push(getItemSection(params[p], p + i, item[p]));
-                }
-            }
-            htmlStrs.push("</article></li>");
-        }
-        $("#tableList").html(htmlStrs.join(""));
-    }
-
-    const getItemSection = (param = {}, id = "", value = "") => {
-        const strs = [];
-        strs.push(`<` + param.tag + ` id="itemId-` + id + `" class="tBody pT">`);
-        strs.push(`<svg class="icon mini mR"><use xlink:href="img/icons.svg` + param.icon + `"></use></svg>`);
-        strs.push(value + `</`+param.tag+`>`);
-        return strs.join("");
-    }
-
-
-
-
-    const getEmptyOption = (selected = false) => {
-        return "<option"+(selected ? "" : " selected")+" value=\"none\">None</option>";
-    }
-
-    const getSortData = () => {
-        const data = {
-            primary: {
-                category: $("#selSortCategoryA").val(),
-                direction: $("#btnSortDirectionA").data("is-on") ? "asc" : "desc" },
-            secondary: { 
-                category: $("#selSortCategoryB").val() || "none",
-                direction: $("#btnSortDirectionB").data("is-on") ? "asc" : "desc" }
-        }
-        return data;
-    }
-
-    const getFilterData = () => {
-        const data = { inclusive: {}, exclusive: {}};
-        for (let i = 0; i < 4; i++) {
-            const char = String.fromCharCode(65 + i);
-            const cat = $("#selFilterCategory" + char).val();
-            console.log(cat);
-            const rule = $("#btnFilterRule" + char).data("is-on") ? "inclusive" : "exclusive";
-            const values = $("#selFilterValues" + char).val() || [];
-            if (!cat || cat === "none" || !values || values[0] === "none") continue;
-            data[rule][cat] = values;
-        }
-        console.log(data);
-        return data;
-    }
-
-    const getSearchData = () => {
-        const data = { inclusive: {}, exclusive: {}};
-        for (let i = 0; i < 4; i++) {
-            const char = String.fromCharCode(65 + i);
-            const cat = $("#selSearchCategory" + char).val();
-            if (!cat || cat === "none") continue;
-            const rule = $("#btnSearchRule" + char).data("is-on") ? "inclusive" : "exclusive";
-            const values = $("#inpSearchValues" + char).val()
-                ? $("#inpSearchValues" + char).val().trim().toLowerCase().split(" ") : [];
-            data[rule][cat] = values;
-        }
-        return data;
-    }
-
-    const getFieldData = () => {
-        const data = {};
-        const fields = Object.keys(State.parameters[State.toCommit.currentTable]);
-        if (fields.includes("jobTitle")) {
-            data.jobTitle = $("#btnFieldJobTitle").data("is-on");
-        }
-        if (fields.includes("department")) {
-            data.department = $("#btnFieldDepartment").data("is-on");
-        }
-        if (fields.includes("location")) {
-            data.location = $("#btnFieldLocation").data("is-on");
-        }
-        if (fields.includes("email")) {
-            data.email = $("#btnFieldEmail").data("is-on");
-        }
-        if (fields.includes("name")) {
-            data.name = $("#btnFieldName").data("is-on");
-        }
-        return data;
-    }
-
-    Ui.validateRow = (blankIsError = true) => {
-        const table = State.toCommit.currentTable;
-        const params = State.parameters[table];
-        const paramKeys = Object.keys(params);
-        const data = {};
-        let errs = [];
-        let hasChanged = false;
-        for (let i = 0; i < paramKeys.length; i++) {
-            const key = paramKeys[i];
-            const param = params[key];
-            const column = param.columnName;
-            if (param.isForeign) continue;
-            if (param.updating === "text") {
-                data[column] = $(param.inputId).val();
-                errs = errs.concat(validateText(data[column], param, table, key, blankIsError));
-            } else if (param.updating === "ref") {
-                data[column] = Data.getWhere(key, "name", $(param.inputId).val(), "id");
-                errs = errs.concat(validateRef(data[column], param, table, key, blankIsError));
-            }
-        }
-        console.log(errs, data);
-        return { errors: errs, data: data };
-    }
-
-    const validateText = (value = "", param = {}, table = "", key = "", blankIsError = true) => {
-        const errs = [];
-        if (blankIsError && !value.trim().length) {
-            errs.push(param.display + " cannot be empty.");
-        }
-        if (value.length > 50) {
-            errs.push(param.display + " cannot be longer than 50 characters.");
-        }
-        if (param.isUnique && Data.getWhere(table, key, value, "id") > -1) {
-            errs.push(param.display + " already exists.");
-        }
-        return errs;
-    }
-
-    const validateRef = (value = "", param = {}, table = "", key = "", blankIsError = true) => {
-        const errs = [];
-        if (blankIsError && value === -1) {
-            errs.push(param.display + " is invalid.");
-        }
-        if (param.isUnique && Data.getWhere(table, key, value, "id") > -1) {
-            errs.push(param.display + " already exists.");
-        }
-        return errs;
+        $("#tableList").html(Generate.list());
     }
 
     Ui.handleSave = () => {
         const table = State.toCommit.currentTable;
-        const rowIds = State.toCommit.currentRowIds;
-        const isAdd = !rowIds.length;
-        const isEdit = rowIds.length === 1;
-        const isBatch = rowIds.length > 1;
-        const v = Ui.validateRow(!isBatch);
+        const isAdd = !selectedIds.length;
+        const isEdit = selectedIds.length === 1;
+        const isBatch = selectedIds.length > 1;
+        const v = Generate.validation(!isBatch, selectedIds);
         if (v.errors.length) {
             Comps.setError();
             Comps.showModal("Error", v.errors, () => {});
@@ -639,10 +522,10 @@
             modalMsg = [Util.capitalise(table) + " added."];
         } else if (isBatch || isEdit) {
             let hasChanged = false;
-            for (let i = 0; i < rowIds.length; i++) {
-                const item = Data.getSingle(table, rowIds[i]);
+            for (let i = 0; i < selectedIds.length; i++) {
+                const item = Data.getSingle(table, selectedIds[i]);
                 const newItem = postData[i] = {};
-                newItem.id = rowIds[i];
+                newItem.id = selectedIds[i];
                 const params = State.parameters[table];
                 const paramKeys = Object.keys(params);
                 for (let j = 0; j < paramKeys.length; j++) {
@@ -652,7 +535,7 @@
                     if (param.isForeign) continue;
                     newItem[column] = v.data[column] || item[column];
                     if (isEdit) {
-                        hasChanged = v.data[column] !== item[column];
+                        hasChanged = v.data[column] !== item[column] || hasChanged;
                     } else if (param.updating === "ref") {
                         hasChanged = v.data[column] >= 0 || hasChanged;
                     } else if (param.updating === "text") {
@@ -670,24 +553,38 @@
         }
         Comps.setLoading();
         const onComplete = (success) => {
-            updateSelections([]);
-            Ui.updateTable();
-            if (success) {
-                Comps.setFinished();
-            } else {
-                Comps.setError();
-            }
+            Comps.setLoading();
+            setSelecting(false);
+            Data.getAll((success) => {
+                Ui.refresh();
+                Ui.updateTable();
+                if (success) {
+                    Comps.setFinished();
+                } else {
+                    Comps.setError();
+                }
+            });
         }
         if (isAdd) {
             Data.add(table, postData, (success) => {
                 Comps.showModal("Success", modalMsg, onComplete);
+                if (success) {
+                    Comps.setFinished();
+                } else {
+                    Comps.setError();
+                }
             });
         } else {
             Data.edit(table, postData, (success) => {
                 Comps.showModal("Success", modalMsg, onComplete);
+                if (success) {
+                    Comps.setFinished();
+                } else {
+                    Comps.setError();
+                }
             });
         }
-        State.updateRowIds([]);
+        resetSelections();
     }
 
 
@@ -705,30 +602,31 @@
     }
     
     Ui.updateTable = () => {
-        $("#tableHeading").html(Util.capitalise(State.toCommit.currentTable));
-        swap("#sectionTable", "#sectionRow");
-        swap("#actionsBasic", "#actions");
+        const table = State.toCommit.currentTable;
+        $("#tableHeading").html(Util.capitalise(table));
+        Util.swap("#sectionTable", "#sectionRow", "medium");
+        Util.swap("#actionsBasic", "#actions", "medium");
         Ui.updateCategory();
         Ui.updateSearch();
         Ui.updateSort();
         Ui.updateFilter();
         Ui.updateFields();
         Ui.updateTheme();
+        Menu.updateSelection(table);
     }
 
     Ui.updateRow = () => {
-        const ids = State.toCommit.currentRowIds;
         let heading = "";
-        if (ids.length > 1) {
-            heading = "Batch edit";
-        } else if (ids.length > 0) {
-            heading = "Edit";
+        if (selectedIds.length > 1) {
+            heading = "Batch edit " + State.toCommit.currentTable;
+        } else if (selectedIds.length > 0) {
+            heading = "Edit " + State.toCommit.currentTable;
         } else {
             heading = "Add " + State.toCommit.currentTable;
         }
         $("#rowHeading").html(heading);
-        swap("#sectionRow", "#sectionTable");
-        swap("#actions", "#actionsBasic");
+        Util.swap("#sectionRow", "#sectionTable", "medium");
+        Util.swap("#actions", "#actionsBasic", "medium");
         Ui.updateRowFields();
     }
 
@@ -736,20 +634,15 @@
         updating = true;
         allowBasicStateChange = false;
         const table = State.toCommit.currentTable;
-        const ids = State.toCommit.currentRowIds;
-        const isAdd = !ids.length;
-        const isEdit = ids.length === 1;
-        const isBatch = ids.length > 1;
-        const data = isAdd ? false : Data.getSingle(table, ids[0]);
+        const isAdd = !selectedIds.length;
+        const isEdit = selectedIds.length === 1;
+        const isBatch = selectedIds.length > 1;
+        const data = isAdd ? false : Data.getSingle(table, selectedIds[0]);
         switch(table) {
             case "personnel":
-                $("#inpRowFirstNameRoot").show();
-                $("#inpRowLastNameRoot").show();
-                $("#inpRowJobTitleRoot").show();
-                $("#inpRowEmailRoot").show();
-                $("#selRowDepartmentRoot").show();
-                $("#inpRowNameRoot").hide();
-                $("#selRowLocationRoot").hide();
+                $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 
+                        #inpRowEmailRoot, #selRowDepartmentRoot`).show();
+                $("#inpRowNameRoot, #selRowLocationRoot").hide();
 
                 $("#inpRowFirstName").val(isEdit ? data.firstName : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
@@ -759,37 +652,26 @@
                     .prop("placeholder", !isBatch ? "" : "Existing");
                 $("#inpRowEmail").val(isEdit ? data.email : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
-                $("#selRowDepartment")
-                    .html((isAdd ? getEmptyOption(true) : "")
-                        + getSelectOptionsByRef(isEdit ? [data.department] : [], "department", Data.getFullList(table)))
-                    .val(isEdit ? data.department : "")
-                    .trigger("change");
+                Comps.updateSelect("#selRowDepartment",
+                    (isAdd ? Generate.emptyOption() : "") + Generate.selectOptionsByExistingRef("name", Data.getFullList("department")),
+                    isEdit ? data.department : "");
                 break;
             case "department":
-                $("#inpRowFirstNameRoot").hide();
-                $("#inpRowLastNameRoot").hide();
-                $("#inpRowJobTitleRoot").hide();
-                $("#inpRowEmailRoot").hide();
-                $("#selRowDepartmentRoot").hide();
-                $("#inpRowNameRoot").show();
-                $("#selRowLocationRoot").show();
+                $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 
+                        #inpRowEmailRoot, #selRowDepartmentRoot`).hide();
+                $("#inpRowNameRoot, #selRowLocationRoot").show();
                 
                 $("#inpRowName").val(isEdit ? data.name : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
-                $("#selRowLocation")
-                    .html((isAdd ? getEmptyOption(true) : "")
-                        + getSelectOptionsByRef(isEdit ? [data.location] : [], "location", Data.getFullList(table)))
-                    .val(isEdit ? data.location : "")
-                    .trigger("change");
+                Comps.updateSelect("#selRowLocation",
+                    (isAdd ? Generate.emptyOption() : "") 
+                        + Generate.selectOptionsByExistingRef("name", Data.getFullList("location")),
+                    isEdit ? data.department : "");
                 break;
             case "location":
-                $("#inpRowFirstNameRoot").hide();
-                $("#inpRowLastNameRoot").hide();
-                $("#inpRowJobTitleRoot").hide();
-                $("#inpRowEmailRoot").hide();
-                $("#selRowDepartmentRoot").hide();
-                $("#inpRowNameRoot").show();
-                $("#selRowLocationRoot").hide();
+                $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 
+                        #inpRowEmailRoot, #selRowDepartmentRoot`).hide();
+                $("#inpRowNameRoot, #selRowLocationRoot").show();
                 
                 $("#inpRowName").val(isEdit ? data.name : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
@@ -797,13 +679,8 @@
             default:
                 throw new Error("invalid section");
         }
-        $("#btnBack").show();
-        $("#btnEdit").hide();
-        $("#btnEditBatch").hide();
-        $("#btnSelectAll").hide();
-        $("#btnDelete").hide();
-        $("#btnReset").show();
-        $("#btnSave").show();
+        $("#btnBack, #btnReset, #btnSave").show();
+        $("#btnEdit, #btnEditBatch, #btnSelectAll, #btnDelete").hide();
         updating = false;
         allowBasicStateChange = true;
     }
@@ -811,13 +688,11 @@
     Ui.updateCategory = () => {
         updating = true;
         allowBasicStateChange = false;
-        console.log("updateCategory");
         const table = State.toCommit.currentTable;
         const cat = State.toCommit[table].category;
         const fieldParams = State.parameters[table];
-        $("#selCategory").html(getSelectOptionsByParams(fieldParams, [cat]))
-            .trigger("change")
-            .prop("disabled", Object.keys(fieldParams).length < 2);
+        Comps.updateSelect("#selCategory", Generate.selectOptionsByParams(fieldParams), [cat]);
+        $("#selCategory").prop("disabled", Object.keys(fieldParams).length < 2);
         updating = false;
         allowBasicStateChange = true;
     }
@@ -825,7 +700,6 @@
     Ui.updateSort = () => {
         updating = true;
         allowBasicStateChange = false;
-        console.log("updateSort");
         const table = State.toCommit.currentTable;
         const sort = State.toCommit[table].sort;
         const fieldParams = State.parameters[table];
@@ -833,23 +707,54 @@
         const isAscB = sort.secondary.direction !== "desc";
         const catA = sort.primary.category;
         const catB = sort.secondary.category;
-        $("#btnSort")
-            .data("is-on", !isAscA)
-            .trigger("click");
-        $("#selSortCategoryA")
-            .html(getSelectOptionsByParams(fieldParams, [catA]))
-            .trigger("change");
-        $("#btnSortDirectionA")
-            .data("is-on", !isAscA)
-            .trigger("click");
-        $("#selSortCategoryB")
-            .html(getEmptyOption(!catB)
-                + getSelectOptionsByParams(fieldParams, catB ? [catB] : []))
-            .trigger("change");
-        $("#btnSortDirectionB")
-            .data("is-on", !isAscB)
-            .trigger("click")
-            .prop("disabled", !catB);
+        Comps.setToggle("#btnSort", isAscA);
+        Comps.updateSelect("#selSortCategoryA", Generate.selectOptionsByParams(fieldParams), [catA]);
+        Comps.setToggle("#btnSortDirectionA", isAscA);
+        Comps.updateSelect("#selSortCategoryB",
+            Generate.emptyOption() + Generate.selectOptionsByParams(fieldParams),
+            catB ? [catB] : []);
+        Comps.setToggle("#btnSortDirectionB", isAscB);
+        $("#btnSortDirectionB").prop("disabled", !catB);
+        updating = false;
+        allowBasicStateChange = true;
+    }
+    
+    Ui.updateFilter = () => {
+        updating = true;
+        allowBasicStateChange = false;
+        const table = State.toCommit.currentTable;
+        const fieldParams = State.parameters[table];
+        const filter = State.toCommit[table].filter;
+        const incKeys = Object.keys(filter.inclusive);
+        const excKeys = Object.keys(filter.exclusive);
+        for (let i = 0; i < 4; i++) {
+            const key = incKeys[i] || excKeys[i - incKeys.length];
+            let rule = !incKeys[i] ? "exclusive" : "inclusive";
+            const suffix = String.fromCharCode(65 + i);
+            const values = filter[rule][key] || [];
+            const isEmpty = !key || key === "none";
+            const valuesType = isEmpty ? "" : fieldParams[key].filterAdv;
+            const something = fieldParams[key]
+            const selectOptionsCat = Generate.emptyOption() 
+                + Generate.selectOptionsByParams(fieldParams);
+            let selectOptionsValues = Generate.emptyOption();
+            if (valuesType === "existingRef") {
+                if (key === "location" || key === "department") {
+                    selectOptionsValues += Generate.selectOptionsByExistingRef("name", Data.getFullList(key));
+                } else {
+                    selectOptionsValues += Generate.selectOptionsByExistingRef(key, Data.getFullList(table));
+                }
+            } else if (valuesType === "existingFirstChar") {
+                selectOptionsValues += Generate.selectOptionsByChar(key, Data.getFullList(table));
+            }
+            Comps.updateSelect("#selFilterCategory" + suffix, selectOptionsCat, isEmpty ? ["none"] : [key]);
+            Comps.setToggle("#btnFilterRule" + suffix, rule === "inclusive" || isEmpty);
+            $("#btnFilterRule" + suffix).prop("disabled", isEmpty);
+            Comps.updateSelect("#selFilterValues" + suffix, selectOptionsValues, values.length ? values : ["none"]);
+            $("#selFilterValues" + suffix).prop("disabled", isEmpty);
+            if (i > 0) continue;
+            Comps.updateSelect("#selFilter", selectOptionsValues, values.length ? values : ["none"]);
+        }
         updating = false;
         allowBasicStateChange = true;
     }
@@ -857,7 +762,6 @@
     Ui.updateSearch = () => {
         updating = true;
         allowBasicStateChange = false;
-        console.log("updateSearch");
         const table = State.toCommit.currentTable;
         const search = State.toCommit[table].search;
         const fieldParams = State.parameters[table];    
@@ -876,13 +780,11 @@
             } else {
                 nonEmptyCount++;
             }
-            const selectOptionsCat = getEmptyOption(isEmpty) 
-                + getSelectOptionsByParams(fieldParams, isEmpty ? [] : [key]);
-            $("#selSearchCategory" + suffix).html(selectOptionsCat)
-                .trigger("change");
-            $("#btnSearchRule" + suffix).data("is-on", rule === "exclusive")
-                .trigger("click")
-                .prop("disabled", isEmpty);
+            const selectOptionsCat = Generate.emptyOption() 
+                + Generate.selectOptionsByParams(fieldParams);
+            Comps.updateSelect("#selSearchCategory" + suffix, selectOptionsCat, isEmpty ? ["none"] : [key]);
+            Comps.setToggle("#btnSearchRule" + suffix, rule === "inclusive" || isEmpty);
+            $("#btnSearchRule" + suffix).prop("disabled", isEmpty);
             $("#inpSearchValues" + suffix).val(values.join(" "))
                 .prop("disabled", isEmpty);
             if (nonEmptyCount === 1) {
@@ -897,55 +799,10 @@
         updating = false;
         allowBasicStateChange = true;
     }
-    
-    Ui.updateFilter = () => {
-        updating = true;
-        allowBasicStateChange = false;
-        console.log("updateFilter");
-        const table = State.toCommit.currentTable;
-        const fieldParams = State.parameters[table];
-        const filter = State.toCommit[table].filter;
-        const incKeys = Object.keys(filter.inclusive);
-        const excKeys = Object.keys(filter.exclusive);
-        for (let i = 0; i < 4; i++) {
-            const key = incKeys[i] || excKeys[i - incKeys.length];
-            let rule = incKeys[i] ? "inclusive" : "exclusive";
-            const suffix = String.fromCharCode(65 + i);
-            const values = filter[rule][key] || [];
-            const isEmpty = !key || key === "none";
-            const valuesType = isEmpty ? "" : fieldParams[key].filterAdv;
-            const selectOptionsCat = getEmptyOption(isEmpty) 
-                + getSelectOptionsByParams(fieldParams, isEmpty ? [] : [key]);
-            let selectOptionsValues = getEmptyOption(!values.length);
-            if (valuesType === "existingRef") {
-                selectOptionsValues += getSelectOptionsByRef(values, key, Data.getFullList(table));
-            } else if (valuesType === "existingFirstChar") {
-                selectOptionsValues += getSelectOptionsByChar(values, key, Data.getFullList(table));
-            }
-            $("#selFilterCategory" + suffix)
-                .html(selectOptionsCat)
-                .trigger("change");
-            $("#btnFilterRule" + suffix)
-                .data("is-on", rule === "exclusive")
-                .trigger("click")
-                .prop("disabled", isEmpty);
-            $("#selFilterValues" + suffix)
-                .html(selectOptionsValues)
-                .trigger("change")
-                .prop("disabled", isEmpty);
-            if (i === 0) {
-                $("#selFilter").html(selectOptionsValues)
-                    .trigger("change");
-            }
-        }
-        updating = false;
-        allowBasicStateChange = true;
-    }
 
     Ui.updateFields = () => {
         updating = true;
         allowBasicStateChange = false;
-        console.log("updateFields");
         $("#btnFieldJobTitle, #btnFieldDepartment, #btnFieldLocation, #btnFieldEmail, #btnFieldName").hide();
         const options = State.toCommit[State.toCommit.currentTable];
         const fields = Object.keys(options.displayFields);
@@ -954,19 +811,24 @@
             const o = options.displayFields[field];
             switch(field) {
                 case "jobTitle":
-                    $("#btnFieldJobTitle").data("is-on", !o).trigger("click").show();
+                    Comps.setToggle("#btnFieldJobTitle", o);
+                    $("#btnFieldJobTitle").show();
                     break;
                 case "department":
-                    $("#btnFieldDepartment").data("is-on", !o).trigger("click").show();
+                    Comps.setToggle("#btnFieldDepartment", o);
+                    $("#btnFieldDepartment").show();
                     break;
                 case "location":
-                    $("#btnFieldLocation").data("is-on", !o).trigger("click").show();
+                    Comps.setToggle("#btnFieldLocation", o);
+                    $("#btnFieldLocation").show();
                     break;
                 case "email":
-                    $("#btnFieldEmail").data("is-on", !o).trigger("click").show();
+                    Comps.setToggle("#btnFieldEmail", o);
+                    $("#btnFieldEmail").show();
                     break;
                 case "name":
-                    $("#btnFieldName").data("is-on", !o).trigger("click").show();
+                    Comps.setToggle("#btnFieldName", o);
+                    $("#btnFieldName").show();
                     break;
                 default:
                     throw new Error("field has no associated button");
@@ -979,98 +841,13 @@
     Ui.updateTheme = () => {
         updating = true;
         allowBasicStateChange = false;
-        $("#btnTheme").data("is-on", State.toCommit.theme !== "dark")
-            .trigger("click");
+        Comps.setToggle("#btnTheme", State.toCommit.theme === "dark")
         $(":root").removeClass("lightTheme");
         if (State.toCommit.theme === "light") {
             $(":root").addClass("lightTheme");
         }
         updating = false;
         allowBasicStateChange = true;
-    }
-    
-    const getSelectOptionsByParams = (fieldParams = {}, selectedKeys = []) => {
-        const keys = Object.keys(fieldParams);
-        let str = "";
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const field = State.parameters[State.toCommit.currentTable][key];
-            let selected = "";
-            if (field.categorised) {
-                for (let i = 0; i < selectedKeys.length; i++) {
-                    const k = selectedKeys[i];
-                    if (k === key) {
-                        selected = " selected";
-                        break;
-                    }
-                }
-                str += "<option"+selected+" value=\""+key+"\">"+field.display+"</option>";
-            }
-        }
-        return str;
-    }
-    
-    const getSelectOptionsByChar = (selectedKeys = [], category = "", list = []) => {
-        let str = "";
-        const uniqueFirstChars = Util.mapUnique(list, i => i[category].substr(0, 1).toUpperCase()).sort();
-    
-        for (let i = 0; i < uniqueFirstChars.length; i++) {
-            const firstChar = uniqueFirstChars[i];
-            let selected = "";
-            for (let j = 0; j < selectedKeys.length; j++) {
-                const key = selectedKeys[j];
-                if (key === firstChar) {
-                    selected = " selected";
-                    break;
-                }
-            }
-            str += "<option"+selected+">"+firstChar+"</option>";
-        }
-        return str;
-    }
-    
-    const getSelectOptionsByRef = (selectedKeys = [], category = "", list = []) => {
-        let str = "";
-        const uniqueRefs = Util.mapUnique(list, i => i[category]).sort();
-    
-        for (let i = 0; i < uniqueRefs.length; i++) {
-            const ref = uniqueRefs[i];
-            let selected = "";
-            let id = "";
-            for (let j = 0; j < selectedKeys.length; j++) {
-                const key = selectedKeys[j];
-                if (key === ref) {
-                    selected = " selected";
-                    id = key;
-                    break;
-                }
-            }
-            str += "<option"+selected+">"+ref+"</option>";
-        }
-        return str;
-    }
-
-    const getSearchString = (obj = {}) => {
-        const keys = Object.keys(obj);
-        let str = "";
-        for (let i = 0; i < keys.length; i++) {
-            const key = keys[i];
-            const o = obj[key];
-            if (!Array.isArray(o)) {
-                throw new Error("value should be array");
-            }
-            for (let j = 0; j < o.length; j++) {
-                str += o[j] + " ";
-            }
-        }
-        return str;
-    }
-    
-    const swap = (target = "", current = "") => {
-        const speed = $(":root").css("--fast");
-        $(current).fadeOut(speed, "swing", () => {
-            $(target).fadeIn(speed);
-        });
     }
     
 }(window.Ui = window.Ui || {}, jQuery));
