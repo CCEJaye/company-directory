@@ -403,7 +403,7 @@
         isSelecting = show;
         if (show) {
             Util.swap("#actions", "#actionsBasic", "medium");
-            $("#btnBack,. #btnSelectAll, #btnDelete").show();
+            $("#btnBack, #btnSelectAll, #btnDelete").show();
             $("#btnReset, #btnSave").hide();
             if (selectedIds.length > 1) {
                 $("#btnEditBatch").show();
