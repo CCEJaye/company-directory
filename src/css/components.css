@@ -137,7 +137,7 @@
         transition-duration: 0ms;
     }
 
-    .iconBtn:disabled span, .valueBtn:disabled span, .selectBtnRoot:disabled span, .selectBtnRoot:disabled label {
+    .iconBtn:disabled span, .valueBtn:disabled span, .selectBtnRoot span.disabled, .selectBtnRoot label.disabled {
         color: var(--primary4);
     }
 

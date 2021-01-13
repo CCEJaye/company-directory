@@ -5,6 +5,7 @@
         State.toCommit is the temporary state, accessed by the ui
     */
     State.all = {
+        version: "1.0.0",
         personnel: {
             category: "department",
             filter: { inclusive: { department: [] }, exclusive: {} },
@@ -203,7 +204,9 @@
 
     State.load = () => {
         const state = Util.load("cd-state");
-        if (state) State.all = state;
+        if (state && State.version === "1.0.0") {
+            State.all = state;
+        }
         State.revert();
         return true;
     }

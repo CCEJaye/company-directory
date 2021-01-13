@@ -18,6 +18,11 @@
             }
             $(this).attr("size", Math.min(childCount, 6));
             $(this).prop("disabled", childCount < 2).siblings("span").html(value);
+            if (childCount < 2) {
+                $(this).siblings("span, label").addClass("disabled");
+            } else {
+                $(this).siblings("span, label").removeClass("disabled");
+            }
         });
 
         $(".selectBtn:not([multiple])").on("change", function() {
@@ -103,7 +108,8 @@
     }
 
     Comps.updateSelect = (selector = "", values = [], selected = []) => {
-        $(selector).html(values).val(selected).trigger("change");
+        const ele = $(selector);
+        ele.html(values).val(selected).trigger("change");
     }
 
     Comps.setToggle = (selector = "", isOn = true) => {

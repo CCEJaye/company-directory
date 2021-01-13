@@ -41,23 +41,6 @@
     --secondary2: #ddd;
     --secondary3: #ccc;
     --secondary4: #bbb;
-
-    --positive: #5e5;
-    --positive2: #5e9;
-    --neutral: #55e;
-    --neutral2: #59e;
-    --negative: #e55;
-    --negative2: #e95;
-
-    --focus: #444;
-    --active: #88e;
-    --hover: #8e8;
-    --selected: #666;
-    --focus-selected: #555;
-
-    --shadow: #000000f0;
-    --focus-shadow: #fff1;
-    --selected-shadow: #ffffff08;
 }
 
 html {
@@ -244,16 +227,7 @@ html {
 
         #inpSearch {
             width: calc(100% - 2rem);
-            /* justify-self: start; */
         }
-
-#menu {
-    
-}
-
-    a.selected {
-        color: var(--primary4);
-    }
 
 .menuWrapper {
     padding-top: 10rem;
@@ -321,8 +295,12 @@ html {
             cursor: pointer;
         }
 
-            .listItem.selected .listButton.selected {
+            .listItem.selected, .listButton.selected {
                 background: var(--selected-shadow);
+            }
+
+            .listItem.selected a {
+                color: var(--primary4);
             }
 
         .listItem:focus, .listButton a:focus {
@@ -374,42 +352,6 @@ html {
                 border-top: none;
                 right: 4.2rem;
             }
-
-/* #preloader {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 9999;
-    overflow: hidden;
-    background: var(--secondary);
-}
-
-    #preloader:before {
-        content: "";
-        position: fixed;
-        top: calc(50% - 3rem);
-        left: calc(50% - 3rem);
-        border: 0.5rem solid var(--primary);
-        border-top: 0.5rem solid var(--secondary);
-        border-radius: 50%;
-        width: 6rem;
-        height: 6rem;
-        -webkit-animation: animate-preloader 1s linear infinite;
-        animation: animate-preloader 1s linear infinite;
-    }
-
-    @keyframes animate-preloader {
-        0% {
-            -webkit-transform: rotate(0deg);
-            transform: rotate(0deg);
-        }
-        100% {
-            -webkit-transform: rotate(360deg);
-            transform: rotate(360deg);
-        }
-    } */
 
 /* FIXES */
 #btnSearch svg {

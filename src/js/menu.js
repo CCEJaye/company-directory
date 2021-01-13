@@ -92,16 +92,16 @@
     }
 
     Menu.updateSelection = (table = "") => {
-        $("#btnPersonnel, #btnDepartment, #btnLocation").removeClass("selected");
+        $("#btnPersonnel, #btnDepartment, #btnLocation").parent().removeClass("selected");
         switch (table) {
             case "personnel":
-                $("#btnPersonnel").addClass("selected");
+                $("#btnPersonnel").parent().addClass("selected");
                 break;
             case "department":
-                $("#btnDepartment").addClass("selected");
+                $("#btnDepartment").parent().addClass("selected");
                 break;
             case "location":
-                $("#btnLocation").addClass("selected");
+                $("#btnLocation").parent().addClass("selected");
                 break;
             default:
                 throw new Error("table does not exist");
