@@ -95,6 +95,8 @@
     
         $("#btnPersonnel").on("click", ifReadyDoThen(
             () => {
+                setSelecting(false);
+                resetSelections();
                 State.revert();
                 State.updateTable("personnel");
                 shouldUpdateUi = State.commit();
@@ -110,6 +112,8 @@
     
         $("#btnDepartment").on("click", ifReadyDoThen(
             () => {
+                setSelecting(false);
+                resetSelections();
                 State.revert();
                 State.updateTable("department");
                 shouldUpdateUi = State.commit();
@@ -125,6 +129,8 @@
     
         $("#btnLocation").on("click", ifReadyDoThen(
             () => {
+                setSelecting(false);
+                resetSelections();
                 State.revert();
                 State.updateTable("location");
                 shouldUpdateUi = State.commit();
@@ -547,9 +553,7 @@
                 return;
             }
         }
-        Comps.setLoading();
         const onComplete = (success) => {
-            Comps.setLoading();
             setSelecting(false);
             Data.getAll((success) => {
                 Ui.refresh();
@@ -561,6 +565,7 @@
                 }
             });
         }
+        Comps.setLoading();
         if (isAdd) {
             Data.add(table, postData, onComplete);
         } else {
@@ -651,8 +656,8 @@
                 break;
             case "location":
                 $(`#inpRowFirstNameRoot, #inpRowLastNameRoot, #inpRowJobTitleRoot, 
-                        #inpRowEmailRoot, #selRowDepartmentRoot`).hide();
-                $("#inpRowNameRoot, #selRowLocationRoot").show();
+                        #inpRowEmailRoot, #selRowDepartmentRoot, #selRowLocationRoot`).hide();
+                $("#inpRowNameRoot").show();
                 
                 $("#inpRowName").val(isEdit ? data.name : "")
                     .prop("placeholder", !isBatch ? "" : "Existing");
