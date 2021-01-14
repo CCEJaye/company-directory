@@ -1,4 +1,5 @@
 :root {
+    --accent: #5cc;
     --primary: #eee;
     --primary2: #ddd;
     --primary3: #ccc;
@@ -33,6 +34,7 @@
 }
 
 .lightTheme {
+    --accent: #588;
     --primary: #111;
     --primary2: #222;
     --primary3: #333;
@@ -178,6 +180,8 @@ html {
             -webkit-break-inside: avoid;
             page-break-inside: avoid;
                  break-inside: avoid;
+            transition-property: background;
+            transition-duration: var(--medium);
         }
 
         #tableList .listHeader {
@@ -188,6 +192,15 @@ html {
             position: sticky;
             top: -0.1rem;
             column-span: all;
+        }
+
+        #tableList .listItem.selected {
+            background: var(--accent);
+        }
+        
+        #tableList .listItem.selected .tBody, #tableList .listItem.selected .tHeading5, #tableList .listItem.selected .icon.mini {
+            fill: var(--secondary);
+            color: var(--secondary);
         }
 
         .badge {
@@ -306,11 +319,6 @@ html {
         .listItem:focus, .listButton a:focus {
             background: var(--focus-shadow);
             transition-duration: var(--medium);
-        }
-    
-        .listItem:active, .listButton a:active {
-            color: var(--active);
-            transition-duration: 0ms;
         }
 
         .listHeading {

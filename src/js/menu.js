@@ -70,7 +70,6 @@
 
         $("#btnMenuBack").on("click", () => {
             if (currentPanel === "mm-0") {
-                Ui.refresh();
                 Menu.close();
             } else {
                 Ui.revert(currentPanel);

@@ -45,7 +45,8 @@
         },
         theme: "dark",
         currentSection: "table",
-        currentTable: "personnel"
+        currentTable: "personnel",
+        tutorial: true
     }
 
     State.parameters = {
@@ -204,7 +205,7 @@
 
     State.load = () => {
         const state = Util.load("cd-state");
-        if (state && State.version === "1.0.0") {
+        if (state && state.version === "1.0.0") {
             State.all = state;
         }
         State.revert();
@@ -355,6 +356,12 @@
         if (State.toCommit.theme === theme) return false;
         State.toCommit.theme = theme;
         return true;
+    }
+
+    State.setTutorial = (set = true) => {
+        State.toCommit.tutorial = set;
+        State.all = Util.copyObj(State.toCommit);
+        Util.save("cd-state", State.all);
     }
 
 }(window.State = window.State || {}, jQuery));

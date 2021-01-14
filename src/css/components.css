@@ -176,11 +176,6 @@
         transition-duration: var(--medium);
     }
 
-    .iconBtn:active svg {
-        fill: var(--active);
-        transition-duration: 0ms;
-    }
-
 .valueBtn {
     padding-left: 2rem;
     padding-right: 2rem;

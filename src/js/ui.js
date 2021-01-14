@@ -5,8 +5,6 @@
     let shouldUpdateUi = true;
     let isSelecting = false;
     let selectedIds = [];
-    let selectedBadges = [];
-    let selectedIcons = [];
 
     const ifReadyDoThen = (fnA = async () => {}, fnB = async () => {}) => async () => {
         if (updating) return;
@@ -255,11 +253,11 @@
     
         $("#btnBack").on("click", ifReadyDoThen(
             () => {
+                if (!isSelecting) {
+                    Util.swap("#sectionTable", "#sectionRow", "medium");
+                }
                 setSelecting(false);
                 resetSelections();
-                if (!isSelecting) {
-                    Ui.updateTable();
-                }
             }
         ));
     
@@ -277,8 +275,7 @@
                 if (!selectedIds.length) return;
                 if (table === "personnel") {
                     handleDelete();
-                }
-                if (table === "department") {
+                } else if (table === "department") {
                     Comps.setLoading();
                     Data.getAll(() => {
                         const list = Data.getFullList("personnel");
@@ -291,8 +288,7 @@
                         }
                         handleDelete();
                     });
-                }
-                if (table === "location") {
+                } else if (table === "location") {
                     Comps.setLoading();
                     Data.getDepartment(selectedIds, () => {
                         const list = Data.getFullList("department");
@@ -315,9 +311,10 @@
                 const idList = Util.mapUnique(Data.getList(State.toCommit.currentTable), (i) => Number.parseInt(i.id));
                 for (let i = 0; i < idList.length; i++) {
                     const id = idList[i];
-                    const icon = $(".listItem[data-id=" + id + "] .badge .icon");
-                    const badge = $(".listItem[data-id=" + id + "] .badge .badgeIcon");
-                    addSelection(id, icon, badge);
+                    const ele = $(".listItem[data-id=" + id + "]");
+                    const icon = ele.children(".badge .icon");
+                    const badge = ele.children(".badge .badgeIcon");
+                    addSelection(ele, id, icon, badge);
                     Util.swap(icon, badge);
                 }
             }
@@ -334,21 +331,18 @@
                 let wasSelected = selectedIds.includes(itemId);
                 if (!itemId) return;
                 if (wasSelected) {
-                    removeSelection(itemId);
-                    Util.swap(ele.children(".badgeIcon"), ele.children(".icon"));
+                    removeSelection(ele.parent(), itemId);
                 } else {
-                    addSelection(itemId, ele.children(".icon"), ele.children(".badgeIcon"));
-                    Util.swap(ele.children(".icon"), ele.children(".badgeIcon"));
+                    addSelection(ele.parent(), itemId);
                 }
                 setSelecting(selectedIds.length);
                 e.stopPropagation();
             } else if (ele.hasClass("listItem")) {
                 const itemId = ele.data("id");
                 if (itemId) {
-                    const c = ele.children(".badge");
                     setSelecting(false, true);
                     resetSelections();
-                    addSelection(itemId, c.children(".icon"), c.children(".badgeIcon"));
+                    addSelection(ele, itemId);
                     Ui.updateRow();
                 }
             }
@@ -358,48 +352,24 @@
             
         $("#preloader").delay(200).fadeOut(Util.cssVar("very-slow"), "swing");
         $("#menu").delay(200).css("opacity", "");
-        $(".mm-wrapper__blocker").on("mousedown", () => {
+        $(".mm-wrapper__blocker, .mm-btn_close").on("mousedown", () => {
             $("#btnMenuBack").trigger("click");
         })
     }
 
     const resetSelections = () => {
+        $("#tableList .listItem.selected").removeClass("selected");
         selectedIds = [];
-        selectedIcons = [];
-        selectedBadges = [];
     }
 
-    const addSelection = (id = 0, icon = {}, badge = {}) => {
+    const addSelection = (ele = {}, id = 0) => {
+        ele.addClass("selected");
         selectedIds.push(id);
-        selectedIcons.push(icon);
-        selectedBadges.push(badge);
     }
 
-    const removeSelection = (id = 0) => {
+    const removeSelection = (ele = {}, id = 0) => {
+        ele.removeClass("selected");
         selectedIds = Util.arrayRemove(selectedIds, id);
-        selectedIcons = Util.arrayRemove(selectedIcons, id);
-        selectedBadges = Util.arrayRemove(selectedBadges, id);
-    }
-
-    const handleDelete = () => {
-        const table = State.all.currentTable;
-        if (!selectedIds.length) return;
-        Comps.showDecisionModal("Confirmation", 
-            ["Are you sure you want to delete these rows?", "This cannot be undone."],
-            ["Delete", "Cancel"], [() => {
-                Comps.setLoading();
-                Data.delete(table, selectedIds, (success) => {
-                    if (!success) return Comps.setError();
-                    Data.getAll((success) => {
-                        if (!success) return Comps.setError();
-                        Ui.refresh();
-                        Comps.showModal("Success", ["Rows successfully deleted."]);
-                        Comps.setFinished();
-                        Ui.updateTable();
-                    });
-                });
-            }, () => {}]
-        );
     }
 
     const setSelecting = (show = true, ignoreActions = false) => {
@@ -416,13 +386,33 @@
                 $("#btnEdit").show();
             }
         } else {
-            for (let i = 0; i < selectedIds.length; i++) {
-                Util.swap(selectedBadges[i], selectedIcons[i]);
-            }
+            $("#tableList .listItem.selected").removeClass("selected");
             if (!ignoreActions) {
                 Util.swap("#actionsBasic", "#actions", "medium");
             }
         }
+    }
+
+    const handleDelete = () => {
+        const table = State.all.currentTable;
+        if (!selectedIds.length) return;
+        Comps.showDecisionModal("Confirmation", 
+            ["Are you sure you want to delete these rows?", "This cannot be undone."],
+            ["Delete", "Cancel"], 
+            [() => {
+                Comps.setLoading();
+                Data.delete(table, selectedIds, (success) => {
+                    if (!success) return Comps.setError();
+                    Data.getAll((success) => {
+                        if (!success) return Comps.setError();
+                        Ui.refresh();
+                        Comps.showModal("Success", ["Rows successfully deleted."]);
+                        Comps.setFinished();
+                        Ui.updateTable();
+                    });
+                });
+            }, () => {}]
+        );
     }
 
     Ui.refresh = () => {
@@ -520,11 +510,9 @@
             Comps.showModal("Error", v.errors, () => {});
             return;
         }
-        let modalMsg = "";
         let postData = {};
         if (isAdd) {
             postData = { 0: v.data };
-            modalMsg = [Util.capitalise(table) + " added."];
         } else if (isBatch || isEdit) {
             let hasChanged = false;
             for (let i = 0; i < selectedIds.length; i++) {
@@ -553,12 +541,13 @@
                 }
             }
             if (!hasChanged) {
-                Comps.setError();
-                Comps.showModal("Error", ["No fields have been changed."], () => {});
+                if (!isSelecting) {
+                    Util.swap("#sectionTable", "#sectionRow", "medium");
+                }
+                setSelecting(false);
+                resetSelections();
                 return;
             }
-            modalMsg = isEdit ? [Util.capitalise(table) + " updated."] 
-                : ["Multiple " + table + "s updated."];
         }
         Comps.setLoading();
         const onComplete = (success) => {
@@ -575,23 +564,9 @@
             });
         }
         if (isAdd) {
-            Data.add(table, postData, (success) => {
-                Comps.showModal("Success", modalMsg, onComplete);
-                if (success) {
-                    Comps.setFinished();
-                } else {
-                    Comps.setError();
-                }
-            });
+            Data.add(table, postData, onComplete);
         } else {
-            Data.edit(table, postData, (success) => {
-                Comps.showModal("Success", modalMsg, onComplete);
-                if (success) {
-                    Comps.setFinished();
-                } else {
-                    Comps.setError();
-                }
-            });
+            Data.edit(table, postData, onComplete);
         }
         resetSelections();
     }
