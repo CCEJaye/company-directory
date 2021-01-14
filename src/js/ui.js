@@ -253,9 +253,7 @@
     
         $("#btnBack").on("click", ifReadyDoThen(
             () => {
-                if (!isSelecting) {
-                    Util.swap("#sectionTable", "#sectionRow", "medium");
-                }
+                Util.swap("#sectionTable", "#sectionRow", "medium");
                 setSelecting(false);
                 resetSelections();
             }
